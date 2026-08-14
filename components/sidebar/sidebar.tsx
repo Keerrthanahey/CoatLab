@@ -1,0 +1,197 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { navSections } from "@/lib/navigation";
+import { cn } from "@/lib/utils";
+import { Logo } from "@/components/ui/logo";
+import { PanelLeftClose, PanelLeft, FlaskConical, X } from "lucide-react";
+
+interface SidebarProps {
+  collapsed: boolean;
+  onToggleCollapse: () => void;
+  mobileOpen: boolean;
+  onCloseMobile: () => void;
+}
+
+function NavLinkContent({ icon: Icon, label, active }: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  active: boolean;
+}) {
+  return (
+    <>
+      <Icon
+        className={cn(
+          "h-[18px] w-[18px] shrink-0 transition-colors",
+          active ? "text-blue-700" : "text-slate-400",
+        )}
+      />
+      <span
+        className={cn(
+          "whitespace-nowrap text-[13px] font-medium transition-colors",
+          active ? "text-blue-800" : "text-slate-600",
+        )}
+      >
+        {label}
+      </span>
+    </>
+  );
+}
+
+export function Sidebar({
+  collapsed,
+  onToggleCollapse,
+  mobileOpen,
+  onCloseMobile,
+}: SidebarProps) {
+  const pathname = usePathname();
+
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
+
+  const nav = (
+    <nav className="flex h-full flex-col">
+      {/* Brand */}
+      <div
+        className={cn(
+          "flex h-16 shrink-0 items-center border-b border-slate-200/80 px-4",
+          collapsed && "justify-center px-2",
+        )}
+      >
+        <Link href="/" className={cn("flex items-center gap-3", collapsed && "gap-0")}>
+          <Logo className="h-9 w-9 shrink-0" />
+          {!collapsed && (
+            <span className="flex flex-col leading-none">
+              <span className="text-[15px] font-semibold tracking-tight text-slate-900">
+                CoatLab
+              </span>
+              <span className="mt-1 font-mono text-[10px] font-medium uppercase tracking-widest text-teal-700">
+                Materials AI
+              </span>
+            </span>
+          )}
+        </Link>
+      </div>
+
+      {/* Collapse toggle */}
+      <button
+        onClick={onToggleCollapse}
+        className={cn(
+          "mx-3 mt-3 hidden h-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-700 lg:flex",
+          collapsed ? "w-8" : "w-full gap-2",
+        )}
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        {collapsed ? (
+          <PanelLeft className="h-4 w-4" />
+        ) : (
+          <>
+            <PanelLeftClose className="h-4 w-4" />
+            <span className="text-xs font-medium">Collapse</span>
+          </>
+        )}
+      </button>
+
+      {/* Nav */}
+      <div className="flex-1 overflow-y-auto px-3 py-4">
+        {navSections.map((section) => (
+          <div key={section.label} className="mb-5">
+            {!collapsed && (
+              <p className="mb-1.5 px-2 font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                {section.label}
+              </p>
+            )}
+            <ul className="space-y-0.5">
+              {section.items.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      onClick={onCloseMobile}
+                      className={cn(
+                        "relative flex items-center gap-3 rounded-lg px-2.5 py-2 transition-colors",
+                        collapsed && "justify-center px-0",
+                        active
+                          ? "bg-blue-50 text-blue-800"
+                          : "hover:bg-slate-100 hover:text-slate-900",
+                      )}
+                      title={collapsed ? item.label : undefined}
+                    >
+                      {active && (
+                        <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-blue-600" />
+                      )}
+                      <NavLinkContent icon={item.icon} label={item.label} active={active} />
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer status */}
+      <div
+        className={cn(
+          "shrink-0 border-t border-slate-200/80 p-3",
+          collapsed && "px-2",
+        )}
+      >
+        <div
+          className={cn(
+            "flex items-center gap-2.5 rounded-lg border border-amber-200/70 bg-amber-50/70 px-3 py-2.5",
+            collapsed && "justify-center px-2",
+          )}
+        >
+          <FlaskConical className="h-4 w-4 shrink-0 text-amber-600" />
+          {!collapsed && (
+            <span className="flex min-w-0 flex-col">
+              <span className="text-[11px] font-medium leading-tight text-amber-800">
+                Mock mode
+              </span>
+              <span className="truncate text-[10px] leading-tight text-amber-700/80">
+                API backend not connected
+              </span>
+            </span>
+          )}
+        </div>
+      </div>
+    </nav>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside
+        className={cn(
+          "sticky top-0 z-30 hidden h-screen shrink-0 border-r border-slate-200/80 bg-white transition-[width] duration-200 lg:block",
+          collapsed ? "w-[76px]" : "w-[264px]",
+        )}
+      >
+        {nav}
+      </aside>
+
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-[1px]"
+            onClick={onCloseMobile}
+          />
+          <aside className="absolute inset-y-0 left-0 w-[280px] bg-white shadow-2xl">
+            <button
+              onClick={onCloseMobile}
+              className="absolute right-3 top-5 z-10 flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              aria-label="Close navigation"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            {nav}
+          </aside>
+        </div>
+      )}
+    </>
+  );
+}

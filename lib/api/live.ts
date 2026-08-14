@@ -1,0 +1,74 @@
+import type { ApiClient } from "./contract";
+
+/**
+ * Live HTTP client for the future FastAPI backend.
+ *
+ * Activated automatically when NEXT_PUBLIC_API_BASE_URL is set, e.g.
+ *   NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+ *
+ * Endpoints (see API_ENDPOINTS in client.ts):
+ *   GET  /api/materials/{id}
+ *   POST /api/predict
+ *   POST /api/analyze-microstructure
+ *   POST /api/literature/upload
+ *   POST /api/literature/query
+ *   GET  /api/dataset
+ *   GET  /api/model/status
+ *   GET  /api/model/metrics
+ */
+function createLiveClient(baseUrl: string): ApiClient {
+  async function http<T>(path: string, init?: RequestInit): Promise<T> {
+    const res = await fetch(`${baseUrl}${path}`, {
+      ...init,
+      headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
+    });
+    if (!res.ok) {
+      throw new Error(`API error ${res.status} on ${path}`);
+    }
+    return (await res.json()) as T;
+  }
+
+  return {
+    materials: {
+      list: () => http(`/api/materials`),
+      get: (id) => http(`/api/materials/${id}`),
+    },
+    predict: (input) =>
+      http(`/api/predict`, { method: "POST", body: JSON.stringify(input) }),
+    sensitivity: (parameterId, input) =>
+      http(`/api/predict/sensitivity`, {
+        method: "POST",
+        body: JSON.stringify({ parameterId, inputs: input }),
+      }),
+    analyzeMicrostructure: (fileName) =>
+      http(`/api/analyze-microstructure`, {
+        method: "POST",
+        body: JSON.stringify({ fileName }),
+      }),
+    literature: {
+      status: () => http(`/api/literature/status`),
+      upload: (files) => {
+        const form = new FormData();
+        files.forEach((f) => form.append("files", f));
+        return http(`/api/literature/upload`, { method: "POST", body: form });
+      },
+      query: (question) =>
+        http(`/api/literature/query`, {
+          method: "POST",
+          body: JSON.stringify({ question }),
+        }),
+    },
+    dataset: {
+      summary: () => http(`/api/dataset/summary`),
+      records: () => http(`/api/dataset/records`),
+    },
+    model: {
+      status: () => http(`/api/model/status`),
+      metrics: () => http(`/api/model/metrics`),
+    },
+  };
+}
+
+export const liveApi: ApiClient = createLiveClient(
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "",
+);
