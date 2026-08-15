@@ -231,16 +231,16 @@ export default function DatasetPage() {
           </div>
 
           {/* Table */}
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.05)]">
+          <div className="overflow-hidden rounded-xl border border-white/[0.07] bg-[#0c1428]">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1400px] border-collapse text-[12px]">
                 <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50">
+                  <tr className="border-b border-white/[0.07] bg-white/[0.03]">
                     {columns.map((col) => (
                       <th key={col.key} className="whitespace-nowrap px-3 py-2.5 text-left">
                         <button
                           onClick={() => handleSort(col.key)}
-                          className="group inline-flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-slate-500 transition-colors hover:text-blue-700"
+                          className="group inline-flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-slate-400 transition-colors hover:text-blue-400"
                         >
                           {col.label}
                           {col.unit && (
@@ -250,9 +250,9 @@ export default function DatasetPage() {
                           )}
                           {sortKey === col.key ? (
                             sortDir === "asc" ? (
-                              <ArrowUp className="h-3 w-3 text-blue-600" />
+                              <ArrowUp className="h-3 w-3 text-blue-400" />
                             ) : (
-                              <ArrowDown className="h-3 w-3 text-blue-600" />
+                              <ArrowDown className="h-3 w-3 text-blue-400" />
                             )
                           ) : (
                             <ArrowUpDown className="h-3 w-3 text-slate-300 group-hover:text-slate-400" />
@@ -266,7 +266,7 @@ export default function DatasetPage() {
                   {pageRows.length === 0 ? (
                     <tr>
                       <td colSpan={columns.length} className="px-4 py-16 text-center">
-                        <p className="text-sm font-medium text-slate-600">No matching records</p>
+                        <p className="text-sm font-medium text-slate-400">No matching records</p>
                         <p className="mt-1 text-xs text-slate-400">
                           Adjust your search or filters.
                         </p>
@@ -276,7 +276,7 @@ export default function DatasetPage() {
                     pageRows.map((row, i) => (
                       <tr
                         key={`${row.paperId}-${i}`}
-                        className="border-b border-slate-100 transition-colors last:border-0 hover:bg-blue-50/40"
+                        className="border-b border-white/[0.05] transition-colors last:border-0 hover:bg-blue-500/10"
                       >
                         {columns.map((col) => {
                           const value = row[col.key];
@@ -286,12 +286,12 @@ export default function DatasetPage() {
                               className={cn(
                                 "whitespace-nowrap px-3 py-2.5",
                                 col.key === "paperId"
-                                  ? "font-mono text-[11px] text-blue-700"
+                                  ? "font-mono text-[11px] text-blue-400"
                                   : value === null || value === undefined
                                     ? "text-slate-300"
                                     : typeof value === "number"
-                                      ? "font-mono tabular-nums text-slate-700"
-                                      : "text-slate-700",
+                                      ? "font-mono tabular-nums text-slate-200"
+                                      : "text-slate-200",
                               )}
                             >
                               {value === null || value === undefined
@@ -310,30 +310,30 @@ export default function DatasetPage() {
             </div>
 
             {/* Pagination */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-slate-50/50 px-4 py-3">
-              <p className="text-[11px] text-slate-500">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.07] bg-white/[0.03] px-4 py-3">
+              <p className="text-[11px] text-slate-400">
                 Showing{" "}
-                <span className="font-mono font-medium text-slate-700">
+                <span className="font-mono font-medium text-slate-200">
                   {filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)}
                 </span>{" "}
-                of <span className="font-mono font-medium text-slate-700">{filtered.length}</span>{" "}
+                of <span className="font-mono font-medium text-slate-200">{filtered.length}</span>{" "}
                 records
               </p>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page <= 1}
-                  className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-lg border border-white/[0.12] bg-[#0c1428] px-3 py-1.5 text-xs font-medium text-slate-400 transition-colors hover:bg-white/[0.04] disabled:opacity-40"
                 >
                   Previous
                 </button>
-                <span className="font-mono text-[11px] text-slate-500">
+                <span className="font-mono text-[11px] text-slate-400">
                   Page {page} / {totalPages}
                 </span>
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page >= totalPages}
-                  className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-lg border border-white/[0.12] bg-[#0c1428] px-3 py-1.5 text-xs font-medium text-slate-400 transition-colors hover:bg-white/[0.04] disabled:opacity-40"
                 >
                   Next
                 </button>
@@ -352,7 +352,7 @@ export default function DatasetPage() {
                   setElectrolyteFilter("all");
                   setPage(1);
                 }}
-                className="text-[11px] font-medium text-blue-600 hover:text-blue-700"
+                className="text-[11px] font-medium text-blue-400 hover:text-blue-400"
               >
                 Clear filters
               </button>

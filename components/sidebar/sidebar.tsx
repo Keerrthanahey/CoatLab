@@ -24,13 +24,13 @@ function NavLinkContent({ icon: Icon, label, active }: {
       <Icon
         className={cn(
           "h-[18px] w-[18px] shrink-0 transition-colors",
-          active ? "text-blue-700" : "text-slate-400",
+          active ? "text-teal-400" : "text-slate-500",
         )}
       />
       <span
         className={cn(
           "whitespace-nowrap text-[13px] font-medium transition-colors",
-          active ? "text-blue-800" : "text-slate-600",
+          active ? "text-teal-300" : "text-slate-400",
         )}
       >
         {label}
@@ -51,11 +51,11 @@ export function Sidebar({
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   const nav = (
-    <nav className="flex h-full flex-col">
+    <nav className="flex h-full flex-col bg-[#060b18]">
       {/* Brand */}
       <div
         className={cn(
-          "flex h-16 shrink-0 items-center border-b border-slate-200/80 px-4",
+          "flex h-16 shrink-0 items-center border-b border-white/[0.06] px-4",
           collapsed && "justify-center px-2",
         )}
       >
@@ -63,10 +63,10 @@ export function Sidebar({
           <Logo className="h-9 w-9 shrink-0" />
           {!collapsed && (
             <span className="flex flex-col leading-none">
-              <span className="text-[15px] font-semibold tracking-tight text-slate-900">
+              <span className="text-[15px] font-semibold tracking-tight text-slate-100">
                 CoatLab
               </span>
-              <span className="mt-1 font-mono text-[10px] font-medium uppercase tracking-widest text-teal-700">
+              <span className="mt-1 font-mono text-[10px] font-medium uppercase tracking-widest text-teal-400">
                 Materials AI
               </span>
             </span>
@@ -78,7 +78,7 @@ export function Sidebar({
       <button
         onClick={onToggleCollapse}
         className={cn(
-          "mx-3 mt-3 hidden h-8 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-700 lg:flex",
+          "mx-3 mt-3 hidden h-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-400 transition-colors hover:bg-white/[0.08] hover:text-slate-200 lg:flex",
           collapsed ? "w-8" : "w-full gap-2",
         )}
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -98,7 +98,7 @@ export function Sidebar({
         {navSections.map((section) => (
           <div key={section.label} className="mb-5">
             {!collapsed && (
-              <p className="mb-1.5 px-2 font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+              <p className="mb-1.5 px-2 font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-500">
                 {section.label}
               </p>
             )}
@@ -114,13 +114,13 @@ export function Sidebar({
                         "relative flex items-center gap-3 rounded-lg px-2.5 py-2 transition-colors",
                         collapsed && "justify-center px-0",
                         active
-                          ? "bg-blue-50 text-blue-800"
-                          : "hover:bg-slate-100 hover:text-slate-900",
+                          ? "border border-teal-500/20 bg-teal-500/10 text-teal-300"
+                          : "border border-transparent text-slate-400 hover:bg-white/[0.04] hover:text-slate-200",
                       )}
                       title={collapsed ? item.label : undefined}
                     >
                       {active && (
-                        <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-blue-600" />
+                        <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r bg-teal-500" />
                       )}
                       <NavLinkContent icon={item.icon} label={item.label} active={active} />
                     </Link>
@@ -135,23 +135,23 @@ export function Sidebar({
       {/* Footer status */}
       <div
         className={cn(
-          "shrink-0 border-t border-slate-200/80 p-3",
+          "shrink-0 border-t border-white/[0.06] p-3",
           collapsed && "px-2",
         )}
       >
         <div
           className={cn(
-            "flex items-center gap-2.5 rounded-lg border border-amber-200/70 bg-amber-50/70 px-3 py-2.5",
+            "flex items-center gap-2.5 rounded-lg border border-amber-500/20 bg-amber-500/[0.07] px-3 py-2.5",
             collapsed && "justify-center px-2",
           )}
         >
-          <FlaskConical className="h-4 w-4 shrink-0 text-amber-600" />
+          <FlaskConical className="h-4 w-4 shrink-0 text-amber-400" />
           {!collapsed && (
             <span className="flex min-w-0 flex-col">
-              <span className="text-[11px] font-medium leading-tight text-amber-800">
+              <span className="text-[11px] font-medium leading-tight text-amber-300">
                 Mock mode
               </span>
-              <span className="truncate text-[10px] leading-tight text-amber-700/80">
+              <span className="truncate text-[10px] leading-tight text-amber-400/70">
                 API backend not connected
               </span>
             </span>
@@ -166,7 +166,7 @@ export function Sidebar({
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          "sticky top-0 z-30 hidden h-screen shrink-0 border-r border-slate-200/80 bg-white transition-[width] duration-200 lg:block",
+          "sticky top-0 z-30 hidden h-screen shrink-0 border-r border-white/[0.06] bg-[#060b18] transition-[width] duration-200 lg:block",
           collapsed ? "w-[76px]" : "w-[264px]",
         )}
       >
@@ -177,13 +177,13 @@ export function Sidebar({
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div
-            className="absolute inset-0 bg-slate-900/40 backdrop-blur-[1px]"
+            className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"
             onClick={onCloseMobile}
           />
-          <aside className="absolute inset-y-0 left-0 w-[280px] bg-white shadow-2xl">
+          <aside className="absolute inset-y-0 left-0 w-[280px] bg-[#060b18] shadow-2xl shadow-black/50">
             <button
               onClick={onCloseMobile}
-              className="absolute right-3 top-5 z-10 flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+              className="absolute right-3 top-5 z-10 flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-white/[0.06] hover:text-slate-200"
               aria-label="Close navigation"
             >
               <X className="h-5 w-5" />

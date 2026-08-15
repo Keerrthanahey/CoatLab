@@ -38,7 +38,7 @@ export function LiteratureIndex() {
         subtitle="PDF research papers processed into the knowledge base."
         icon={<FileText className="h-4 w-4" />}
         aside={
-          <span className="rounded border border-dashed border-amber-300 px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-amber-600">
+          <span className="rounded border border-dashed border-amber-300 px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-amber-400">
             Awaiting literature
           </span>
         }
@@ -52,7 +52,7 @@ export function LiteratureIndex() {
           { label: "Status", value: notIndexed ? "Not indexed" : "Indexed", tone: "amber" as const },
           { label: "Last indexed", value: status?.lastIndexedAt ? new Date(status.lastIndexedAt).toLocaleDateString() : "—" },
         ].map((s) => (
-          <div key={s.label} className="rounded-lg border border-slate-100 bg-slate-50/60 px-3 py-2.5">
+          <div key={s.label} className="rounded-lg border border-white/[0.05] bg-white/[0.03] px-3 py-2.5">
             <p className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
               {s.label}
             </p>
@@ -60,7 +60,7 @@ export function LiteratureIndex() {
               {"tone" in s && s.tone ? (
                 <Badge tone={s.tone}>{s.value}</Badge>
               ) : (
-                <span className="font-mono text-[13px] font-medium tabular-nums text-slate-800">
+                <span className="font-mono text-[13px] font-medium tabular-nums text-slate-100">
                   {s.value}
                 </span>
               )}
@@ -90,24 +90,24 @@ export function LiteratureIndex() {
           setDragging(false);
           if (phase === "idle") handleFiles(e.dataTransfer.files);
         }}
-        className={`mt-5 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-4 py-9 text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600/30 ${
-          dragging ? "border-blue-500 bg-blue-50/60" : "border-slate-300 bg-slate-50/50 hover:border-blue-300"
+        className={`mt-5 flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-4 py-9 text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/20 ${
+          dragging ? "border-blue-500 bg-blue-500/10" : "border-white/[0.12] bg-white/[0.03] hover:border-blue-500/30"
         } ${phase !== "idle" ? "cursor-wait opacity-60" : ""}`}
       >
         {phase === "uploading" ? (
           <>
-            <Loader2 className="h-7 w-7 animate-spin text-blue-600" />
-            <p className="mt-3 text-xs font-semibold text-slate-700">
+            <Loader2 className="h-7 w-7 animate-spin text-blue-400" />
+            <p className="mt-3 text-xs font-semibold text-slate-200">
               Accepting submission (demo)…
             </p>
           </>
         ) : (
           <>
             <FileUp className="h-7 w-7 text-slate-400" />
-            <p className="mt-3 text-xs font-semibold text-slate-700">
+            <p className="mt-3 text-xs font-semibold text-slate-200">
               Upload / index literature
             </p>
-            <p className="mt-1 text-[11px] text-slate-500">
+            <p className="mt-1 text-[11px] text-slate-400">
               Drag PDF papers here or browse. PDF only.
             </p>
             <input

@@ -62,7 +62,7 @@ export function ParameterForm({
         subtitle="Inputs consumed by the ML pipeline. Schema-driven — new parameters are added from the parameter definitions."
         icon={<Info className="h-4 w-4" />}
         aside={
-          <span className="rounded border border-dashed border-amber-300 px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-amber-600">
+          <span className="rounded border border-dashed border-amber-300 px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-amber-400">
             Awaiting model
           </span>
         }

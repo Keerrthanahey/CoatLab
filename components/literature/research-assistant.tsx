@@ -61,7 +61,7 @@ export function ResearchAssistant() {
 
   return (
     <Card className="flex h-full min-h-[560px] flex-col" pad={false}>
-      <div className="border-b border-slate-100 p-5">
+      <div className="border-b border-white/[0.05] p-5">
         <CardHeader
           title="AI Research Assistant"
           subtitle="Answers grounded in the indexed literature, with citations."
@@ -87,27 +87,27 @@ export function ResearchAssistant() {
         {messages.map((m, i) => (
           <div key={i} className={`flex gap-3 ${m.role === "user" ? "justify-end" : ""}`}>
             {m.role === "assistant" && (
-              <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 text-teal-700">
+              <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-teal-500/25 bg-teal-500/10 text-teal-400">
                 <Bot className="h-4 w-4" />
               </span>
             )}
             <div
               className={`max-w-[85%] rounded-2xl px-4 py-3 text-[13px] leading-relaxed ${
                 m.role === "user"
-                  ? "rounded-tr-sm bg-blue-700 text-white"
-                  : "rounded-tl-sm border border-slate-200 bg-slate-50 text-slate-700"
+                  ? "rounded-tr-sm bg-blue-600 text-white"
+                  : "rounded-tl-sm border border-white/[0.07] bg-white/[0.03] text-slate-200"
               }`}
             >
               {m.content}
               {m.citations && m.citations.length > 0 && (
-                <div className="mt-3 border-t border-slate-200 pt-2.5">
+                <div className="mt-3 border-t border-white/[0.07] pt-2.5">
                   <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                     <Quote className="h-3 w-3" /> Sources
                   </p>
                   <ul className="mt-1.5 space-y-1">
                     {m.citations.map((c, j) => (
-                      <li key={j} className="flex items-center gap-2 text-[11px] text-slate-500">
-                        <code className="rounded bg-white px-1.5 py-0.5 font-mono text-[10px] text-blue-700 ring-1 ring-slate-200">
+                      <li key={j} className="flex items-center gap-2 text-[11px] text-slate-400">
+                        <code className="rounded bg-[#0c1428] px-1.5 py-0.5 font-mono text-[10px] text-blue-400 ring-1 ring-white/[0.07]">
                           {c.paperId}
                         </code>
                         {c.page && <span className="text-slate-400">p.{c.page}</span>}
@@ -120,13 +120,13 @@ export function ResearchAssistant() {
                 </div>
               )}
               {m.demo && (
-                <p className="mt-2 flex items-center gap-1.5 text-[10px] text-amber-600">
+                <p className="mt-2 flex items-center gap-1.5 text-[10px] text-amber-400">
                   <Sparkles className="h-3 w-3" /> Mock response — knowledge base not connected
                 </p>
               )}
             </div>
             {m.role === "user" && (
-              <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-white">
+              <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#0d1830] text-white">
                 <User className="h-4 w-4" />
               </span>
             )}
@@ -135,10 +135,10 @@ export function ResearchAssistant() {
 
         {busy && (
           <div className="flex items-center gap-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-teal-200 bg-teal-50 text-teal-700">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-teal-500/25 bg-teal-500/10 text-teal-400">
               <Bot className="h-4 w-4" />
             </span>
-            <div className="rounded-2xl rounded-tl-sm border border-slate-200 bg-slate-50 px-4 py-3">
+            <div className="rounded-2xl rounded-tl-sm border border-white/[0.07] bg-white/[0.03] px-4 py-3">
               <div className="flex items-center gap-1.5">
                 <span className="h-2 w-2 animate-bounce rounded-full bg-teal-500" />
                 <span className="h-2 w-2 animate-bounce rounded-full bg-teal-500 [animation-delay:120ms]" />
@@ -159,7 +159,7 @@ export function ResearchAssistant() {
             key={q}
             onClick={() => ask(q)}
             disabled={busy}
-            className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[11px] text-slate-600 transition-colors hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 disabled:opacity-50"
+            className="rounded-full border border-white/[0.07] bg-[#0c1428] px-3 py-1.5 text-[11px] text-slate-400 transition-colors hover:border-teal-500/30 hover:bg-teal-500/10 hover:text-teal-300 disabled:opacity-50"
           >
             {q}
           </button>
@@ -167,7 +167,7 @@ export function ResearchAssistant() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-slate-100 p-4">
+      <div className="border-t border-white/[0.05] p-4">
         <div className="flex items-center gap-2">
           <input
             value={input}
@@ -179,7 +179,7 @@ export function ResearchAssistant() {
               }
             }}
             placeholder="Ask a question about the research literature…"
-            className="h-11 flex-1 rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/15"
+            className="h-11 flex-1 rounded-xl border border-white/[0.12] bg-[#0c1428] px-4 text-sm text-white placeholder:text-slate-400 focus:border-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-600/15"
           />
           <button
             onClick={() => ask(input)}

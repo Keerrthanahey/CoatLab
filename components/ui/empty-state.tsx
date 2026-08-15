@@ -18,23 +18,23 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "demo-pattern flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50/60 text-center",
+        "demo-pattern flex flex-col items-center justify-center rounded-xl border border-dashed border-white/[0.12] bg-white/[0.03] text-center",
         compact ? "p-6" : "p-10",
         className,
       )}
     >
       {icon && (
-        <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 shadow-sm">
+        <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-lg border border-white/[0.07] bg-[#0c1428] text-slate-400">
           {icon}
         </div>
       )}
-      <p className={cn("font-medium text-slate-700", compact ? "text-xs" : "text-sm")}>
+      <p className={cn("font-medium text-slate-200", compact ? "text-xs" : "text-sm")}>
         {title}
       </p>
       {description && (
         <p
           className={cn(
-            "mt-1 max-w-sm leading-relaxed text-slate-500",
+            "mt-1 max-w-sm leading-relaxed text-slate-400",
             compact ? "text-[11px]" : "text-xs",
           )}
         >
@@ -58,10 +58,10 @@ export function StateBanner({
   description?: string;
 }) {
   const tones = {
-    amber: "border-amber-200 bg-amber-50 text-amber-800",
-    blue: "border-blue-200 bg-blue-50 text-blue-800",
-    red: "border-red-200 bg-red-50 text-red-800",
-    neutral: "border-slate-200 bg-slate-50 text-slate-700",
+    amber: "border-amber-500/25 bg-amber-500/10 text-amber-300",
+    blue: "border-blue-500/25 bg-blue-500/10 text-blue-300",
+    red: "border-red-500/25 bg-red-500/10 text-red-300",
+    neutral: "border-white/[0.07] bg-white/[0.03] text-slate-200",
   };
   return (
     <div className={cn("flex items-start gap-3 rounded-lg border px-4 py-3", tones[tone])}>

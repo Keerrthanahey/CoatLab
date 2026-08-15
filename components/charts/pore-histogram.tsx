@@ -41,11 +41,11 @@ export function PoreSizeHistogram({
               if (!active || !payload?.length) return null;
               const bin = payload[0].payload as PoreBin;
               return (
-                <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-lg">
-                  <p className="font-mono text-[11px] font-semibold text-slate-700">
+                <div className="rounded-lg border border-white/[0.07] bg-[#0c1428] px-3 py-2 shadow-lg">
+                  <p className="font-mono text-[11px] font-semibold text-slate-200">
                     {bin.bin} μm
                   </p>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-slate-400">
                     {bin.count} pores
                   </p>
                 </div>

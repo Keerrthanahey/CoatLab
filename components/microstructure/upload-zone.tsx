@@ -46,10 +46,10 @@ export function UploadZone({
         if (!disabled) handleFiles(e.dataTransfer.files);
       }}
       className={cn(
-        "flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-14 text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600/30",
+        "flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-14 text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/20",
         dragging
-          ? "border-blue-500 bg-blue-50/60"
-          : "border-slate-300 bg-white hover:border-blue-300 hover:bg-blue-50/30",
+          ? "border-blue-500 bg-blue-500/10"
+          : "border-white/[0.12] bg-[#0c1428] hover:border-blue-500/30 hover:bg-blue-500/10",
         disabled && "cursor-not-allowed opacity-60",
       )}
     >
@@ -57,8 +57,8 @@ export function UploadZone({
         className={cn(
           "flex h-14 w-14 items-center justify-center rounded-2xl border transition-colors",
           dragging
-            ? "border-blue-200 bg-white text-blue-600"
-            : "border-slate-200 bg-slate-50 text-slate-400",
+            ? "border-blue-500/25 bg-[#0c1428] text-blue-400"
+            : "border-white/[0.07] bg-white/[0.03] text-slate-400",
         )}
       >
         {dragging ? (
@@ -67,10 +67,10 @@ export function UploadZone({
           <ImagePlus className="h-6 w-6" />
         )}
       </div>
-      <p className="mt-4 text-sm font-semibold text-slate-800">
+      <p className="mt-4 text-sm font-semibold text-slate-100">
         Upload Microstructure Image
       </p>
-      <p className="mt-1 text-xs text-slate-500">
+      <p className="mt-1 text-xs text-slate-400">
         Drag &amp; drop an SEM / microscopy image here, or click to browse
       </p>
       <p className="mt-3 font-mono text-[11px] uppercase tracking-wider text-slate-400">

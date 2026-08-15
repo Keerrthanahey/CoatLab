@@ -22,12 +22,12 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
     <button
       onClick={() => onChange(!checked)}
       className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${
-        checked ? "bg-blue-700" : "bg-slate-200"
+        checked ? "bg-blue-600" : "bg-white/[0.08]"
       }`}
       aria-pressed={checked}
     >
       <span
-        className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${
+        className={`absolute top-0.5 h-5 w-5 rounded-full bg-[#0c1428] shadow transition-all ${
           checked ? "left-[22px]" : "left-0.5"
         }`}
       />
@@ -110,9 +110,9 @@ export default function SettingsPage() {
                   />
                 </div>
               </Field>
-              <div className="rounded-lg border border-slate-100 bg-slate-50/60 px-3 py-2.5">
+              <div className="rounded-lg border border-white/[0.05] bg-white/[0.03] px-3 py-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-slate-600">
+                  <span className="text-xs font-medium text-slate-400">
                     Materials database
                   </span>
                   <Badge tone="amber">Demo record</Badge>
@@ -133,7 +133,7 @@ export default function SettingsPage() {
               subtitle="Routes the platform exposes (FastAPI contract)."
               icon={<Server className="h-4 w-4" />}
             />
-            <div className="mt-4 divide-y divide-slate-100">
+            <div className="mt-4 divide-y divide-white/[0.05]">
               {Object.entries(API_ENDPOINTS)
                 .flatMap(([group, value]) =>
                   typeof value === "object" && value !== null
@@ -146,14 +146,14 @@ export default function SettingsPage() {
                 )
                 .map((item) => (
                   <div key={`${item.group}.${item.name}`} className="flex items-center gap-3 py-2.5">
-                    <code className="flex-1 truncate font-mono text-[11px] text-slate-600">
+                    <code className="flex-1 truncate font-mono text-[11px] text-slate-400">
                       {item.ep}
                     </code>
                     <Badge tone="neutral">{item.name}</Badge>
                   </div>
                 ))}
             </div>
-            <p className="mt-3 flex items-center gap-1.5 border-t border-slate-100 pt-3 text-[11px] text-slate-400">
+            <p className="mt-3 flex items-center gap-1.5 border-t border-white/[0.05] pt-3 text-[11px] text-slate-400">
               <ExternalLink className="h-3 w-3" />
               Contract docs will live at <code className="font-mono">/docs</code> on the backend.
             </p>
@@ -173,7 +173,7 @@ export default function SettingsPage() {
               ].map((row) => (
                 <div key={row.key} className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-[13px] font-medium text-slate-700">{row.label}</p>
+                    <p className="text-[13px] font-medium text-slate-200">{row.label}</p>
                     <p className="text-[11px] text-slate-400">{row.desc}</p>
                   </div>
                   <Toggle
@@ -188,8 +188,8 @@ export default function SettingsPage() {
           <Card>
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold text-red-700">Danger zone</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-sm font-semibold text-red-400">Danger zone</p>
+                <p className="text-xs text-slate-400">
                   Clear locally stored demo state and reset preferences.
                 </p>
               </div>

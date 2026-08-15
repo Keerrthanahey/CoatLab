@@ -61,10 +61,10 @@ export default async function ModelPage() {
             subtitle="Registered target model for coating property regression."
             icon={<BrainCircuit className="h-4 w-4" />}
           />
-          <div className="mt-4 rounded-lg border border-slate-100 bg-slate-50/60 px-4 py-3">
+          <div className="mt-4 rounded-lg border border-white/[0.05] bg-white/[0.03] px-4 py-3">
             <p className="text-[10px] font-medium uppercase tracking-wide text-slate-400">Status</p>
             <div className="mt-1 flex items-center gap-2.5">
-              <span className="font-mono text-lg font-semibold text-slate-900">
+              <span className="font-mono text-lg font-semibold text-white">
                 Not Trained
               </span>
               <Badge tone="amber" dot>
@@ -74,15 +74,15 @@ export default async function ModelPage() {
           </div>
           <div className="mt-4 space-y-2.5 text-xs">
             <div className="flex items-center justify-between">
-              <span className="text-slate-500">Model ID</span>
-              <code className="font-mono text-slate-700">{status.modelId}</code>
+              <span className="text-slate-400">Model ID</span>
+              <code className="font-mono text-slate-200">{status.modelId}</code>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-slate-500">Dataset rows</span>
-              <span className="font-mono tabular-nums text-slate-700">{status.datasetRows}</span>
+              <span className="text-slate-400">Dataset rows</span>
+              <span className="font-mono tabular-nums text-slate-200">{status.datasetRows}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-slate-500">Last trained</span>
+              <span className="text-slate-400">Last trained</span>
               <span className="font-mono text-slate-400">—</span>
             </div>
           </div>
@@ -99,7 +99,7 @@ export default async function ModelPage() {
             <div>
               <p className="mb-2 flex items-center gap-2 font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-400">
                 Features
-                <span className="rounded bg-blue-50 px-1.5 py-0.5 font-mono text-[10px] text-blue-700">
+                <span className="rounded bg-blue-500/10 px-1.5 py-0.5 font-mono text-[10px] text-blue-400">
                   {status.features.length}
                 </span>
               </p>
@@ -107,7 +107,7 @@ export default async function ModelPage() {
                 {status.features.map((f) => (
                   <code
                     key={f}
-                    className="rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 font-mono text-[10px] text-slate-600"
+                    className="rounded border border-white/[0.07] bg-white/[0.03] px-1.5 py-0.5 font-mono text-[10px] text-slate-400"
                   >
                     {f}
                   </code>
@@ -117,7 +117,7 @@ export default async function ModelPage() {
             <div>
               <p className="mb-2 flex items-center gap-2 font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-400">
                 Targets
-                <span className="rounded bg-teal-50 px-1.5 py-0.5 font-mono text-[10px] text-teal-700">
+                <span className="rounded bg-teal-500/10 px-1.5 py-0.5 font-mono text-[10px] text-teal-400">
                   {status.targets.length}
                 </span>
               </p>
@@ -125,7 +125,7 @@ export default async function ModelPage() {
                 {status.targets.map((t) => (
                   <code
                     key={t}
-                    className="rounded border border-teal-200 bg-teal-50/50 px-1.5 py-0.5 font-mono text-[10px] text-teal-800"
+                    className="rounded border border-teal-500/25 bg-teal-500/10 px-1.5 py-0.5 font-mono text-[10px] text-teal-300"
                   >
                     {t}
                   </code>
@@ -139,7 +139,7 @@ export default async function ModelPage() {
       {/* Metrics */}
       <section>
         <div className="mb-3">
-          <h3 className="text-sm font-semibold text-slate-900">Evaluation metrics</h3>
+          <h3 className="text-sm font-semibold text-white">Evaluation metrics</h3>
         </div>
         <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
           {metricDefs.map((m) => (
@@ -168,7 +168,7 @@ export default async function ModelPage() {
           {readiness.map((r) => (
             <div
               key={r.label}
-              className="rounded-lg border border-slate-100 bg-slate-50/60 px-3 py-3"
+              className="rounded-lg border border-white/[0.05] bg-white/[0.03] px-3 py-3"
             >
               <div className="flex items-center gap-2">
                 {r.done ? (
@@ -176,7 +176,7 @@ export default async function ModelPage() {
                 ) : (
                   <Circle className="h-4 w-4 text-slate-300" />
                 )}
-                <span className="text-xs font-medium text-slate-700">{r.label}</span>
+                <span className="text-xs font-medium text-slate-200">{r.label}</span>
               </div>
               <p className="mt-1.5 text-[11px] leading-relaxed text-slate-400">{r.detail}</p>
             </div>

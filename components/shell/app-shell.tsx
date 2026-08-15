@@ -10,7 +10,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-[#060b18]">
       <Sidebar
         collapsed={collapsed}
         onToggleCollapse={() => setCollapsed((c) => !c)}
@@ -22,8 +22,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-8 sm:px-6 lg:px-8">
           {children}
         </main>
-        <footer className="border-t border-slate-200/80 py-4">
-          <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-2 px-4 text-[11px] text-slate-400 sm:px-6 lg:px-8">
+        <footer className="border-t border-white/[0.06] py-4">
+          <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-2 px-4 text-[11px] text-slate-500 sm:px-6 lg:px-8">
             <span>CoatLab · Materials Intelligence Platform</span>
             <span>
               {isMockMode

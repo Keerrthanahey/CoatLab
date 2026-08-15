@@ -26,15 +26,15 @@ function CustomTooltip({ active, payload, unit }: {
 }) {
   if (!active || !payload || payload.length === 0) return null;
   return (
-    <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 shadow-lg">
-      <p className="mb-1 font-mono text-[11px] font-semibold text-slate-700">
+    <div className="rounded-lg border border-white/[0.07] bg-[#0c1428] px-3 py-2 shadow-lg">
+      <p className="mb-1 font-mono text-[11px] font-semibold text-slate-200">
         {payload[0].payload?.x} {unit}
       </p>
       {payload.map((p) => (
         <div key={p.name} className="flex items-center gap-2 text-[11px]">
           <span className="h-2 w-2 rounded-full" style={{ backgroundColor: p.color }} />
-          <span className="w-20 text-slate-500">{p.name}</span>
-          <span className="ml-auto font-mono tabular-nums text-slate-700">{p.value}</span>
+          <span className="w-20 text-slate-400">{p.name}</span>
+          <span className="ml-auto font-mono tabular-nums text-slate-200">{p.value}</span>
         </div>
       ))}
     </div>

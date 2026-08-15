@@ -14,7 +14,7 @@ export function Tabs({ tabs, defaultId }: { tabs: Tab[]; defaultId?: string }) {
 
   return (
     <div>
-      <div className="flex flex-wrap gap-1 border-b border-slate-200">
+      <div className="flex flex-wrap gap-1 border-b border-white/[0.07]">
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -22,8 +22,8 @@ export function Tabs({ tabs, defaultId }: { tabs: Tab[]; defaultId?: string }) {
             className={cn(
               "-mb-px border-b-2 px-3.5 py-2.5 text-[13px] font-medium transition-colors",
               active === tab.id
-                ? "border-blue-600 text-blue-700"
-                : "border-transparent text-slate-500 hover:text-slate-800",
+                ? "border-teal-500 text-teal-400"
+                : "border-transparent text-slate-400 hover:text-slate-100",
             )}
           >
             {tab.label}

@@ -18,8 +18,8 @@ function MaterialSummary({ material }: { material: Material }) {
       <div className="flex flex-col gap-6 p-6 md:flex-row md:items-center">
         {/* Element tile */}
         <div className="flex shrink-0 items-center gap-5">
-          <div className="relative flex h-24 w-24 flex-col items-center justify-center rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50 to-white shadow-inner">
-            <span className="text-3xl font-semibold tracking-tight text-blue-800">
+          <div className="relative flex h-24 w-24 flex-col items-center justify-center rounded-2xl border border-blue-500/20 bg-gradient-to-b from-blue-500/10 to-white/[0.02] shadow-inner">
+            <span className="text-3xl font-semibold tracking-tight text-blue-300">
               {material.symbol}
             </span>
             <span className="mt-0.5 font-mono text-[10px] text-slate-400">
@@ -32,22 +32,22 @@ function MaterialSummary({ material }: { material: Material }) {
         {/* Identity */}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-xl font-semibold tracking-tight text-slate-900">
+            <h2 className="text-xl font-semibold tracking-tight text-white">
               {material.name}
             </h2>
-            <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 font-mono text-xs text-slate-600">
+            <span className="rounded-md border border-white/[0.07] bg-white/[0.03] px-2 py-0.5 font-mono text-xs text-slate-400">
               {material.formula}
             </span>
             <Badge tone="teal">{material.category}</Badge>
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 font-mono text-[11px] font-medium text-blue-700">
+            <span className="inline-flex items-center gap-1 rounded-md bg-blue-500/10 px-2 py-0.5 font-mono text-[11px] font-medium text-blue-400">
               {material.id}
               <Copy className="h-3 w-3 opacity-50" />
             </span>
             <Badge tone="neutral">Materials Project ref</Badge>
           </div>
-          <p className="mt-2 text-xs leading-relaxed text-slate-500">
+          <p className="mt-2 text-xs leading-relaxed text-slate-400">
             {material.spaceGroup.name} ({material.spaceGroup.symbol}, space group{" "}
             {material.spaceGroup.number}). Primitive research material for coating studies.
           </p>
@@ -61,11 +61,11 @@ function MaterialSummary({ material }: { material: Material }) {
             { label: "Band gap", value: material.electronic.isMetal ? "Metallic" : `${material.electronic.bandGap} eV` },
             { label: "Stability", value: material.thermodynamic.isStable ? "Stable" : "Metastable" },
           ].map((s) => (
-            <div key={s.label} className="rounded-lg border border-slate-100 bg-slate-50/60 px-3 py-2">
+            <div key={s.label} className="rounded-lg border border-white/[0.05] bg-white/[0.03] px-3 py-2">
               <p className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
                 {s.label}
               </p>
-              <p className="mt-0.5 font-mono text-[13px] font-medium tabular-nums text-slate-800">
+              <p className="mt-0.5 font-mono text-[13px] font-medium tabular-nums text-slate-100">
                 {s.value}
               </p>
             </div>
@@ -175,7 +175,7 @@ export default async function MaterialsPage() {
                         <PropertyRow label="Decomposition energy" value={`${material.thermodynamic.decompositionEnergy.toFixed(3)} eV/atom`} />
                         <PropertyRow label="Stability" value={<Badge tone="green">{material.thermodynamic.isStable ? "Ground state" : "Metastable"}</Badge>} mono={false} />
                       </PropertyGroup>
-                      <p className="text-xs leading-relaxed text-slate-500">
+                      <p className="text-xs leading-relaxed text-slate-400">
                         Pure magnesium is a stable elemental reference state
                         (energy above hull = 0). These values come from a
                         representative DFT-style calculation and are presented
@@ -195,7 +195,7 @@ export default async function MaterialsPage() {
                         <PropertyRow label="Poisson ratio" value={material.mechanical.poissonRatio} />
                         <PropertyRow label="Universal anisotropy" value={material.mechanical.universalAnisotropy} />
                       </PropertyGroup>
-                      <p className="text-xs leading-relaxed text-slate-500">
+                      <p className="text-xs leading-relaxed text-slate-400">
                         Magnesium is a light structural metal (density ≈ 1.74
                         g/cm³) with moderate elastic moduli. Coating processes
                         aim to protect the reactive surface while preserving
@@ -214,7 +214,7 @@ export default async function MaterialsPage() {
                         <PropertyRow label="Classification" value={material.electronic.isMetal ? "Metallic conductor" : "Semiconductor"} mono={false} />
                         <PropertyRow label="Work function" value={`${material.surface.workFunction} eV`} />
                       </PropertyGroup>
-                      <p className="text-xs leading-relaxed text-slate-500">
+                      <p className="text-xs leading-relaxed text-slate-400">
                         Metallic behaviour (zero band gap) and low work function
                         make Mg highly electropositive — the driver for the
                         rapid corrosion that coating research targets.
@@ -233,7 +233,7 @@ export default async function MaterialsPage() {
                         ))}
                         <PropertyRow label="Work function" value={`${material.surface.workFunction} eV`} />
                       </PropertyGroup>
-                      <p className="text-xs leading-relaxed text-slate-500">
+                      <p className="text-xs leading-relaxed text-slate-400">
                         {material.surface.notes}
                       </p>
                     </div>

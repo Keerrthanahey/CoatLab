@@ -12,15 +12,15 @@ export function CrystalViewerPlaceholder() {
     <div className="flex h-full flex-col">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-slate-900">Crystal structure</h3>
-          <p className="text-xs text-slate-500">hcp · P63/mmc · schematic</p>
+          <h3 className="text-sm font-semibold text-white">Crystal structure</h3>
+          <p className="text-xs text-slate-400">hcp · P63/mmc · schematic</p>
         </div>
-        <span className="rounded border border-dashed border-amber-300 px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-amber-600">
+        <span className="rounded border border-dashed border-amber-300 px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-amber-400">
           Placeholder
         </span>
       </div>
 
-      <div className="demo-pattern relative flex flex-1 items-center justify-center rounded-xl border border-slate-200 bg-gradient-to-b from-slate-50 to-white p-4 [perspective:800px]">
+      <div className="demo-pattern relative flex flex-1 items-center justify-center rounded-xl border border-white/[0.07] bg-gradient-to-b from-white/[0.03] to-white/[0.02] p-4 [perspective:800px]">
         <svg
           viewBox="0 0 220 190"
           className="h-full max-h-72 w-full transition-transform duration-500 hover:[transform:rotateY(10deg)_rotateX(4deg)]"
@@ -105,7 +105,7 @@ export function CrystalViewerPlaceholder() {
           <button
             key={ctrl.label}
             disabled
-            className="flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-[11px] text-slate-400"
+            className="flex items-center justify-center gap-1.5 rounded-lg border border-white/[0.07] bg-white/[0.03] px-2 py-1.5 text-[11px] text-slate-400"
           >
             <ctrl.icon className="h-3.5 w-3.5" />
             {ctrl.label}

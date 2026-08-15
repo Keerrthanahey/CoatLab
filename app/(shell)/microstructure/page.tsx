@@ -35,9 +35,9 @@ const overlayDots: { x: number; y: number; r: number }[] = [
 
 function StatCard({ label, value, unit }: { label: string; value: string; unit?: string }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.05)]">
+    <div className="rounded-xl border border-white/[0.07] bg-[#0c1428] p-4">
       <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">{label}</p>
-      <p className="mt-1.5 font-mono text-xl font-semibold tracking-tight text-slate-900">
+      <p className="mt-1.5 font-mono text-xl font-semibold tracking-tight text-white">
         {value}
         {unit && <span className="ml-1 text-xs font-normal text-slate-400">{unit}</span>}
       </p>
@@ -91,17 +91,17 @@ export default function MicrostructurePage() {
       )}
 
       {phase === "analyzing" && (
-        <div className="demo-pattern flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 px-6 py-20 text-center">
+        <div className="demo-pattern flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/[0.12] bg-white/[0.03] px-6 py-20 text-center">
           <div className="relative flex h-14 w-14 items-center justify-center">
             <span className="absolute inset-0 animate-ping rounded-full bg-teal-200/70" />
-            <span className="relative flex h-12 w-12 items-center justify-center rounded-full border border-teal-200 bg-white">
-              <ScanSearch className="h-5 w-5 animate-pulse text-teal-700" />
+            <span className="relative flex h-12 w-12 items-center justify-center rounded-full border border-teal-500/25 bg-[#0c1428]">
+              <ScanSearch className="h-5 w-5 animate-pulse text-teal-400" />
             </span>
           </div>
-          <p className="mt-5 text-sm font-semibold text-slate-800">
+          <p className="mt-5 text-sm font-semibold text-slate-100">
             Segmenting pores and analyzing microstructure…
           </p>
-          <p className="mt-1 max-w-sm text-xs leading-relaxed text-slate-500">
+          <p className="mt-1 max-w-sm text-xs leading-relaxed text-slate-400">
             Thresholding, morphological filtering and pore labeling would run
             against <code className="font-mono">POST /api/analyze-microstructure</code>.
           </p>
@@ -125,10 +125,10 @@ export default function MicrostructurePage() {
                 subtitle={file ? file.name : "—"}
                 icon={<ImageIcon className="h-4 w-4" />}
               />
-              <div className="mt-4 overflow-hidden rounded-lg border border-slate-200 bg-slate-900">
+              <div className="mt-4 overflow-hidden rounded-lg border border-white/[0.07] bg-[#0d1830]">
                 {isTiff ? (
                   <div className="flex h-64 flex-col items-center justify-center px-6 text-center">
-                    <ImageIcon className="h-8 w-8 text-slate-500" />
+                    <ImageIcon className="h-8 w-8 text-slate-400" />
                     <p className="mt-3 text-xs font-medium text-slate-300">
                       TIFF preview not supported in browser
                     </p>
@@ -154,10 +154,10 @@ export default function MicrostructurePage() {
                 icon={<ScanLine className="h-4 w-4" />}
                 aside={<DataStatusTag label="Simulated" />}
               />
-              <div className="relative mt-4 overflow-hidden rounded-lg border border-slate-200 bg-slate-900">
+              <div className="relative mt-4 overflow-hidden rounded-lg border border-white/[0.07] bg-[#0d1830]">
                 {isTiff || !previewUrl ? (
                   <div className="flex h-64 flex-col items-center justify-center px-6 text-center">
-                    <ScanLine className="h-8 w-8 text-slate-500" />
+                    <ScanLine className="h-8 w-8 text-slate-400" />
                     <p className="mt-3 text-xs font-medium text-slate-300">
                       Processed output pending
                     </p>
@@ -211,18 +211,18 @@ export default function MicrostructurePage() {
                 subtitle="Interpretation guidance"
                 icon={<ScanLine className="h-4 w-4" />}
               />
-              <div className="mt-4 space-y-3 text-xs leading-relaxed text-slate-500">
+              <div className="mt-4 space-y-3 text-xs leading-relaxed text-slate-400">
                 <p>
                   Pores in plasma-electrolytic oxide coatings form where the
                   discharge channels cool and solidify. Size and density are
                   controlled primarily by current density, frequency and duty
                   cycle.
                 </p>
-                <div className="flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50/60 px-3 py-2.5">
+                <div className="flex items-center justify-between rounded-lg border border-white/[0.05] bg-white/[0.03] px-3 py-2.5">
                   <span>Porosity class</span>
                   <Badge tone="teal">Low · dense coating</Badge>
                 </div>
-                <div className="flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50/60 px-3 py-2.5">
+                <div className="flex items-center justify-between rounded-lg border border-white/[0.05] bg-white/[0.03] px-3 py-2.5">
                   <span>Distribution shape</span>
                   <Badge tone="neutral">Right-skewed · lognormal-like</Badge>
                 </div>
@@ -245,7 +245,7 @@ export default function MicrostructurePage() {
                 setPreviewUrl(null);
                 setResult(null);
               }}
-              className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
+              className="rounded-lg border border-white/[0.12] bg-[#0c1428] px-3 py-1.5 text-xs font-medium text-slate-400 transition-colors hover:bg-white/[0.04]"
             >
               Analyze another image
             </button>

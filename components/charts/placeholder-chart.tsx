@@ -18,13 +18,13 @@ export function PlaceholderChart({
   return (
     <ChartCard title={title} subtitle={subtitle} demo="Awaiting">
       <div
-        className="demo-pattern flex flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50/60 px-4 text-center"
+        className="demo-pattern flex flex-col items-center justify-center rounded-lg border border-dashed border-white/[0.12] bg-white/[0.03] px-4 text-center"
         style={{ height }}
       >
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 shadow-sm">
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-white/[0.07] bg-[#0c1428] text-slate-400 shadow-sm">
           {icon}
         </div>
-        <p className="mt-3 text-xs font-medium text-slate-600">{label}</p>
+        <p className="mt-3 text-xs font-medium text-slate-400">{label}</p>
         {description && <p className="mt-1 max-w-xs text-[11px] leading-relaxed text-slate-400">{description}</p>}
       </div>
     </ChartCard>

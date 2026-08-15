@@ -41,22 +41,22 @@ export function PredictionResults({
 
   if (status === "analyzing") {
     return (
-      <div className="flex h-full flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-10 text-center">
+      <div className="flex h-full flex-col items-center justify-center rounded-xl border border-white/[0.07] bg-[#0c1428] p-10 text-center">
         <div className="relative flex h-14 w-14 items-center justify-center">
-          <span className="absolute inset-0 animate-ping rounded-full bg-blue-200/70" />
-          <span className="relative flex h-12 w-12 items-center justify-center rounded-full border border-blue-200 bg-blue-50">
-            <Gauge className="h-5 w-5 animate-pulse text-blue-700" />
+          <span className="absolute inset-0 animate-ping rounded-full bg-blue-500/25" />
+          <span className="relative flex h-12 w-12 items-center justify-center rounded-full border border-blue-500/25 bg-blue-500/10">
+            <Gauge className="h-5 w-5 animate-pulse text-blue-400" />
           </span>
         </div>
-        <p className="mt-5 text-sm font-semibold text-slate-800">
+        <p className="mt-5 text-sm font-semibold text-slate-100">
           Analyzing process parameters…
         </p>
-        <p className="mt-1 max-w-xs text-xs leading-relaxed text-slate-500">
+        <p className="mt-1 max-w-xs text-xs leading-relaxed text-slate-400">
           Validating inputs, querying the prediction endpoint and compiling
           property estimates.
         </p>
         <div className="mt-4 flex items-center gap-2 text-[11px] text-slate-400">
-          <code className="rounded bg-slate-100 px-1.5 py-0.5 font-mono">POST /api/predict</code>
+          <code className="rounded bg-white/[0.05] px-1.5 py-0.5 font-mono">POST /api/predict</code>
         </div>
       </div>
     );
@@ -83,26 +83,26 @@ export function PredictionResults({
               </span>
               <DataStatusTag label="Demo" />
             </div>
-            <p className="mt-2 font-mono text-[26px] font-semibold leading-none tracking-tight text-slate-900">
+            <p className="mt-2 font-mono text-[26px] font-semibold leading-none tracking-tight text-white">
               {prop.value}
               {prop.unit && (
                 <span className="ml-1 text-sm font-normal text-slate-400">{prop.unit}</span>
               )}
             </p>
-            <p className="mt-2 text-[11px] leading-relaxed text-slate-500">{prop.description}</p>
+            <p className="mt-2 text-[11px] leading-relaxed text-slate-400">{prop.description}</p>
           </Card>
         ))}
       </div>
 
       {/* Run metadata */}
       <Card pad={false} className="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
-        <span className="flex items-center gap-2 text-[11px] text-slate-500">
+        <span className="flex items-center gap-2 text-[11px] text-slate-400">
           <span className="font-mono text-slate-400">Run</span>
-          <code className="font-mono text-slate-700">{result.id}</code>
+          <code className="font-mono text-slate-200">{result.id}</code>
         </span>
-        <span className="flex items-center gap-2 text-[11px] text-slate-500">
+        <span className="flex items-center gap-2 text-[11px] text-slate-400">
           <span className="font-mono text-slate-400">Model</span>
-          <code className="font-mono text-slate-700">{result.model.id}</code>
+          <code className="font-mono text-slate-200">{result.model.id}</code>
         </span>
         <Badge tone="amber" dot>
           {result.model.status.replace("_", " ")}
@@ -113,13 +113,13 @@ export function PredictionResults({
       </Card>
 
       {/* Uncertainty */}
-      <div className="demo-pattern flex items-start gap-3 rounded-xl border border-dashed border-slate-300 bg-slate-50/60 px-4 py-3.5">
+      <div className="demo-pattern flex items-start gap-3 rounded-xl border border-dashed border-white/[0.12] bg-white/[0.03] px-4 py-3.5">
         <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
         <div>
-          <p className="text-[13px] font-medium text-slate-700">
+          <p className="text-[13px] font-medium text-slate-200">
             Model uncertainty — available after model training
           </p>
-          <p className="mt-0.5 text-xs leading-relaxed text-slate-500">
+          <p className="mt-0.5 text-xs leading-relaxed text-slate-400">
             Prediction intervals, conformal bands and sensitivity-derived
             confidence are deliberately not fabricated. This panel will render
             calibrated uncertainty once the regression model is trained on the
@@ -134,15 +134,15 @@ export function PredictionResults({
           <Card pad={false} className="p-5">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900">
+                <h3 className="text-sm font-semibold text-white">
                   Process parameter sensitivity
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-400">
                   Vary one input while holding the others fixed at the submitted
                   values. Curves are illustrative.
                 </p>
               </div>
-              <div className="flex rounded-lg border border-slate-200 bg-slate-50 p-0.5">
+              <div className="flex rounded-lg border border-white/[0.07] bg-white/[0.03] p-0.5">
                 {sensitivityOptions.map((opt) => (
                   <button
                     key={opt.id}
@@ -150,8 +150,8 @@ export function PredictionResults({
                     className={cn(
                       "rounded-md px-2.5 py-1.5 text-[11px] font-medium transition-colors",
                       sensitivityParam === opt.id
-                        ? "bg-white text-blue-700 shadow-sm"
-                        : "text-slate-500 hover:text-slate-700",
+                        ? "bg-[#0c1428] text-blue-400 shadow-sm"
+                        : "text-slate-400 hover:text-slate-200",
                     )}
                   >
                     {opt.label}
