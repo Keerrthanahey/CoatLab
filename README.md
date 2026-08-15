@@ -47,7 +47,7 @@ npm run dev
 npm run dev -- -p 3333
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3333).
 
 ## Scripts
 
