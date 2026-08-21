@@ -12,7 +12,7 @@ import { EmptyState, StateBanner } from "@/components/ui/empty-state";
 import { ComparisonTable, type ComparisonColumn } from "@/components/charts/comparison-table";
 import { BarCompare } from "@/components/charts/bar-compare";
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
 const MATERIALS = ["Al2O3", "SiO2", "TiO2", "ZrO2"];
 

@@ -1,4 +1,4 @@
-import type { ApiClient } from "./contract";
+import type { AgentChatResponse, ApiClient, CoatingPrediction, OptimizationResult } from "./contract";
 import { magnesium, materials } from "@/lib/mock-data/materials";
 import { mockPredict, mockSensitivity } from "@/lib/mock-data/prediction";
 import { mockAnalyzeMicrostructure } from "@/lib/mock-data/microstructure";
@@ -78,6 +78,49 @@ export const mockApi: ApiClient = {
     async metrics() {
       await delay(200);
       return emptyMetrics;
+    },
+  },
+
+  ml: {
+    async predict(): Promise<CoatingPrediction> {
+      await delay(800);
+      return {
+        corrosion_resistance: 82.5,
+        corrosion_rate: 0.215,
+        coating_thickness: 65.3,
+        porosity: 4.8,
+        pore_size: 12.6,
+        wear_resistance: 78.0,
+        demo: true,
+        model_id: "coatlab-mock-v1",
+      };
+    },
+    async optimize(): Promise<OptimizationResult> {
+      await delay(1200);
+      return {
+        total_evaluated: 0,
+        ranked: [],
+        demo: true,
+      };
+    },
+    async modelInfo() {
+      await delay(200);
+      return { trained: false, demo: true };
+    },
+  },
+
+  agent: {
+    async chat(message: string): Promise<AgentChatResponse> {
+      await delay(1500);
+      void message;
+      return {
+        response:
+          "This is a mock response from the CoatLab agent. " +
+          "Connect the backend with GOOGLE_API_KEY configured to enable AI chat.",
+        tool_calls: [],
+        demo: true,
+        error: null,
+      };
     },
   },
 };

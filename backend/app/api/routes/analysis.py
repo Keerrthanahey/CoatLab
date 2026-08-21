@@ -1,29 +1,26 @@
 from __future__ import annotations
 
-import io
 import math
-from typing import Any
 
 import cv2
 import numpy as np
 from fastapi import APIRouter, UploadFile, File
 
 from app.schemas.ml import MorphologyResult, FigureExtractionResult
+from app.core.tracing import log_analysis, log_error
 
 router = APIRouter(prefix="/api/analysis", tags=["analysis"])
 
 
 @router.post("/morphology", response_model=MorphologyResult)
 async def analyze_morphology(file: UploadFile = File(...)) -> MorphologyResult:
-    from app.core.tracing import log_analysis, log_error
     file_name = file.filename or "unknown"
     contents = await file.read()
     nparr = np.frombuffer(contents, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     if img is None:
         log_error("morphology", "Could not decode image", context={"file": file_name})
-    log_analysis("Morphology", {"file": file_name, "dimensions": f"{w}x{h}"}, {"pore_count": len(diameters), "porosity": round(porosity, 2)})
-    return MorphologyResult(
+        return MorphologyResult(
             image_width=0, image_height=0, pore_count=0,
             porosity_percent=0, avg_pore_size=0, max_pore_size=0,
             min_pore_size=0, distribution=[], classification="unknown",
@@ -58,7 +55,7 @@ async def analyze_morphology(file: UploadFile = File(...)) -> MorphologyResult:
                 dist[i]["count"] += 1
                 break
 
-    return MorphologyResult(
+    result = MorphologyResult(
         image_width=w,
         image_height=h,
         pore_count=len(diameters),
@@ -71,18 +68,24 @@ async def analyze_morphology(file: UploadFile = File(...)) -> MorphologyResult:
         demo=True,
     )
 
+    log_analysis(
+        "Morphology",
+        {"file": file_name, "dimensions": f"{w}x{h}"},
+        {"pore_count": result.pore_count, "porosity": result.porosity_percent, "classification": classification},
+    )
+
+    return result
+
 
 @router.post("/figure", response_model=FigureExtractionResult)
 async def analyze_figure(file: UploadFile = File(...)) -> FigureExtractionResult:
-    from app.core.tracing import log_analysis, log_error
     file_name = file.filename or "unknown"
     contents = await file.read()
     nparr = np.frombuffer(contents, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     if img is None:
         log_error("figure", "Could not decode image", context={"file": file_name})
-    log_analysis("Figure", {"file": file_name}, {"axes_detected": axes_detected, "data_points": len(data_points), "confidence": confidence})
-    return FigureExtractionResult(
+        return FigureExtractionResult(
             axes_detected=False, data_points=[], confidence=0,
             notes="Could not decode image.",
         )
@@ -96,7 +99,10 @@ async def analyze_figure(file: UploadFile = File(...)) -> FigureExtractionResult
     data_points: list[dict] = []
     if axes_detected:
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-        circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, 1.2, 30, param1=100, param2=30, minRadius=3, maxRadius=15)
+        circles = cv2.HoughCircles(
+            blurred, cv2.HOUGH_GRADIENT, 1.2, 30,
+            param1=100, param2=30, minRadius=3, maxRadius=15,
+        )
         if circles is not None:
             for c in circles[0]:
                 data_points.append({"x": round(float(c[0]), 1), "y": round(float(c[1]), 1)})
@@ -108,12 +114,23 @@ async def analyze_figure(file: UploadFile = File(...)) -> FigureExtractionResult
         confidence += min(0.4, len(data_points) * 0.05)
     confidence = round(min(confidence, 0.85), 2)
 
-    return FigureExtractionResult(
+    result = FigureExtractionResult(
         axes_detected=axes_detected,
         data_points=data_points[:50],
         x_label="x (detected)" if axes_detected else None,
         y_label="y (detected)" if axes_detected else None,
         confidence=confidence,
-        notes="Best-effort extraction using edge/line/circle detection. Values are approximate pixel coordinates, not calibrated data.",
+        notes=(
+            "Best-effort extraction using edge/line/circle detection. "
+            "Values are approximate pixel coordinates, not calibrated data."
+        ),
         demo=True,
     )
+
+    log_analysis(
+        "Figure",
+        {"file": file_name},
+        {"axes_detected": axes_detected, "data_points": len(data_points), "confidence": confidence},
+    )
+
+    return result

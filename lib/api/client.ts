@@ -28,6 +28,25 @@ export const API_ENDPOINTS = {
     status: "/api/model/status",
     metrics: "/api/model/metrics",
   },
+  ml: {
+    predict: "/api/ml/predict",
+    optimize: "/api/ml/optimize",
+    modelInfo: "/api/ml/model-info",
+    featureInfo: "/api/ml/feature-info",
+    train: "/api/ml/train",
+  },
+  morphology: {
+    analyze: "/api/morphology/analyze",
+    legacyAnalyze: "/api/analysis/morphology",
+  },
+  figure: {
+    analyze: "/api/figure/analyze",
+    legacyAnalyze: "/api/analysis/figure",
+  },
+  agent: {
+    chat: "/api/agent/chat",
+  },
+  health: "/api/health",
 } as const;
 
 export const isMockMode = !process.env.NEXT_PUBLIC_API_BASE_URL;

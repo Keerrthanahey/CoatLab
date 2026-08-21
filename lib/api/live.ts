@@ -1,23 +1,30 @@
-import type { ApiClient } from "./contract";
+import type { AgentChatResponse, ApiClient, CoatingInput, CoatingPrediction, OptimizationRequest, OptimizationResult } from "./contract";
 
 /**
- * Live HTTP client for the future FastAPI backend.
+ * Live HTTP client for the FastAPI backend.
  *
  * Activated automatically when NEXT_PUBLIC_API_BASE_URL is set, e.g.
  *   NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
  *
- * Endpoints (see API_ENDPOINTS in client.ts):
+ * Endpoints:
+ *   GET  /api/health
  *   GET  /api/materials/{id}
  *   POST /api/predict
+ *   POST /api/predict/sensitivity
  *   POST /api/analyze-microstructure
  *   POST /api/literature/upload
  *   POST /api/literature/query
- *   GET  /api/dataset
+ *   GET  /api/dataset/summary
+ *   GET  /api/dataset/records
  *   GET  /api/model/status
  *   GET  /api/model/metrics
+ *   POST /api/ml/predict
+ *   POST /api/ml/optimize
+ *   GET  /api/ml/model-info
+ *   POST /api/agent/chat
  */
 function createLiveClient(baseUrl: string): ApiClient {
-  const TIMEOUT_MS = 15_000;
+  const TIMEOUT_MS = 30_000;
 
   async function http<T>(path: string, init?: RequestInit): Promise<T> {
     const controller = new AbortController();
@@ -92,6 +99,21 @@ function createLiveClient(baseUrl: string): ApiClient {
     model: {
       status: () => http(`/api/model/status`),
       metrics: () => http(`/api/model/metrics`),
+    },
+    ml: {
+      predict: (input: CoatingInput): Promise<CoatingPrediction> =>
+        http(`/api/ml/predict`, { method: "POST", body: JSON.stringify(input) }),
+      optimize: (request: OptimizationRequest): Promise<OptimizationResult> =>
+        http(`/api/ml/optimize`, { method: "POST", body: JSON.stringify(request) }),
+      modelInfo: (): Promise<Record<string, unknown>> =>
+        http(`/api/ml/model-info`),
+    },
+    agent: {
+      chat: (message: string): Promise<AgentChatResponse> =>
+        http(`/api/agent/chat`, {
+          method: "POST",
+          body: JSON.stringify({ message }),
+        }),
     },
   };
 }

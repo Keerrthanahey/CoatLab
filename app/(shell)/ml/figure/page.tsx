@@ -10,7 +10,7 @@ import { EmptyState, StateBanner } from "@/components/ui/empty-state";
 import { UploadZone } from "@/components/ui/upload-zone";
 import { ComparisonTable, type ComparisonColumn } from "@/components/charts/comparison-table";
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
 interface FigureResult {
   xAxis: string | null;

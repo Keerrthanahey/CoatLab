@@ -1,6 +1,7 @@
 {
   "demo": true,
-  "note": "Metrics computed on SYNTHETIC data; not real experimental performance.",
+  "note": "Metrics computed on SYNTHETIC data; not real experimental performance. Both RandomForest and GradientBoosting were compared; the best model per target (by R\u00b2) is reported in 'selected_model'.",
+  "trained_at": "2026-08-21T11:10:38.269189+00:00",
   "dataset_rows": 500,
   "train_rows": 400,
   "test_rows": 100,
@@ -14,40 +15,46 @@
   ],
   "metrics": {
     "corrosion_resistance": {
-      "r2": 0.6879421464877906,
-      "mae": 5.713944675705326,
-      "rmse": 7.122941582213566,
-      "mape": 1.2359946036418679
+      "r2": 0.714497,
+      "mae": 5.463327,
+      "rmse": 6.813138,
+      "mape": 0.904767,
+      "selected_model": "GradientBoostingRegressor"
     },
     "corrosion_rate": {
-      "r2": 0.7837311542395263,
-      "mae": 0.23190670946541744,
-      "rmse": 0.3152570075256423,
-      "mape": 0.3135765778073857
+      "r2": 0.845822,
+      "mae": 0.199169,
+      "rmse": 0.266183,
+      "mape": 0.283232,
+      "selected_model": "GradientBoostingRegressor"
     },
     "coating_thickness": {
-      "r2": 0.8870748421421727,
-      "mae": 5.015387407491821,
-      "rmse": 6.462872596046471,
-      "mape": 0.12819829505726696
+      "r2": 0.915672,
+      "mae": 4.382642,
+      "rmse": 5.584902,
+      "mape": 0.113908,
+      "selected_model": "GradientBoostingRegressor"
     },
     "porosity": {
-      "r2": 0.7709522546151124,
-      "mae": 1.9042639588239103,
-      "rmse": 2.438562639421752,
-      "mape": 0.22151217293000325
+      "r2": 0.789258,
+      "mae": 1.778633,
+      "rmse": 2.339087,
+      "mape": 0.200415,
+      "selected_model": "GradientBoostingRegressor"
     },
     "pore_size": {
-      "r2": 0.8922414905903112,
-      "mae": 0.9062992544196539,
-      "rmse": 1.2233330656699906,
-      "mape": 0.14954551004373784
+      "r2": 0.897156,
+      "mae": 0.833912,
+      "rmse": 1.195114,
+      "mape": 0.146802,
+      "selected_model": "GradientBoostingRegressor"
     },
     "wear_resistance": {
-      "r2": 0.8123746656434032,
-      "mae": 15.645113377583693,
-      "rmse": 19.606064596986535,
-      "mape": 0.1937629932595888
+      "r2": 0.855562,
+      "mae": 13.962658,
+      "rmse": 17.202249,
+      "mape": 0.151528,
+      "selected_model": "GradientBoostingRegressor"
     }
   }
 }
