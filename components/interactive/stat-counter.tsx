@@ -28,10 +28,17 @@ function AnimatedNumber({
   const hasAnimated = useRef(false);
   const spanRef = useRef<HTMLSpanElement>(null);
   const inView = useInView(spanRef, { once: true, margin: "-60px" });
+  const prefersReduced = useRef(typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
   useEffect(() => {
     if (inView && !hasAnimated.current) {
       hasAnimated.current = true;
+      if (prefersReduced.current) {
+        if (displayRef.current) {
+          displayRef.current.textContent = prefix + value.toFixed(decimals) + suffix;
+        }
+        return;
+      }
       const controls = animate(motionVal, value, {
         duration: 1.8,
         ease: [0.16, 1, 0.3, 1],

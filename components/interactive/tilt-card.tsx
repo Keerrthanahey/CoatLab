@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type MouseEvent, type ReactNode } from "react";
+import { useRef, type MouseEvent, type ReactNode, type KeyboardEvent } from "react";
 
 interface TiltCardProps {
   children: ReactNode;
@@ -10,8 +10,10 @@ interface TiltCardProps {
 
 export function TiltCard({ children, className = "", maxTilt = 8 }: TiltCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
+  const isTouch = useRef(typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches);
 
   const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (isTouch.current) return;
     const card = cardRef.current;
     if (!card) return;
     const rect = card.getBoundingClientRect();
@@ -40,11 +42,21 @@ export function TiltCard({ children, className = "", maxTilt = 8 }: TiltCardProp
     if (shine) shine.style.background = "transparent";
   };
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      const link = cardRef.current?.querySelector("a");
+      if (link) link.click();
+    }
+  };
+
   return (
     <div
       ref={cardRef}
+      role="button"
+      tabIndex={0}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onKeyDown={handleKeyDown}
       className={`relative ${className}`}
       style={{ transformStyle: "preserve-3d", willChange: "transform" }}
     >

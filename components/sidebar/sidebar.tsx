@@ -6,6 +6,8 @@ import { navSections } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/ui/logo";
 import { PanelLeftClose, PanelLeft, FlaskConical, X } from "lucide-react";
+import { useRef, useEffect, useCallback } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface SidebarProps {
   collapsed: boolean;
@@ -47,6 +49,59 @@ export function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
 
+  const drawerRef = useRef<HTMLElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  const getFocusableElements = useCallback(() => {
+    if (!drawerRef.current) return [];
+    return Array.from(
+      drawerRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      ),
+    ).filter((el) => el.offsetParent !== null);
+  }, []);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    const timer = setTimeout(() => {
+      closeButtonRef.current?.focus();
+    }, 50);
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onCloseMobile();
+        return;
+      }
+
+      if (e.key !== "Tab") return;
+
+      const focusable = getFocusableElements();
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [mobileOpen, onCloseMobile, getFocusableElements]);
+
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
@@ -78,7 +133,7 @@ export function Sidebar({
       <button
         onClick={onToggleCollapse}
         className={cn(
-          "mx-3 mt-3 hidden h-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-400 transition-colors hover:bg-white/[0.08] hover:text-slate-200 lg:flex",
+          "mx-3 mt-3 hidden h-8 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-400 transition-colors hover:bg-white/[0.08] hover:text-slate-200 focus-visible:ring-2 focus-visible:ring-teal-500/50 focus-visible:outline-none lg:flex",
           collapsed ? "w-8" : "w-full gap-2",
         )}
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -174,24 +229,43 @@ export function Sidebar({
       </aside>
 
       {/* Mobile drawer */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"
-            onClick={onCloseMobile}
-          />
-          <aside className="absolute inset-y-0 left-0 w-[280px] bg-[#060b18] shadow-2xl shadow-black/50">
-            <button
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div
+              key="mobile-drawer-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-[2px] lg:hidden"
               onClick={onCloseMobile}
-              className="absolute right-3 top-5 z-10 flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-white/[0.06] hover:text-slate-200"
-              aria-label="Close navigation"
+            />
+            <motion.aside
+              key="mobile-drawer-panel"
+              ref={drawerRef}
+              initial={{ x: -280 }}
+              animate={{ x: 0 }}
+              exit={{ x: -280 }}
+              transition={{ type: "tween", duration: 0.2 }}
+              className="fixed inset-y-0 left-0 z-50 w-[280px] bg-[#060b18] shadow-2xl shadow-black/50 lg:hidden"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Navigation"
             >
-              <X className="h-5 w-5" />
-            </button>
-            {nav}
-          </aside>
-        </div>
-      )}
+              <button
+                ref={closeButtonRef}
+                onClick={onCloseMobile}
+                className="absolute right-3 top-5 z-10 flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-white/[0.06] hover:text-slate-200 focus-visible:ring-2 focus-visible:ring-teal-500/50 focus-visible:outline-none"
+                aria-label="Close navigation"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              {nav}
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }

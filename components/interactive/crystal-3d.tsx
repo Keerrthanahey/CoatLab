@@ -92,6 +92,16 @@ export function Crystal3D({ className = "" }: { className?: string }) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d")!;
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+    const autoRotSpeed = prefersReduced ? 0.0008 : 0.004;
+
+    let visible = true;
+    const observer = new IntersectionObserver(
+      ([entry]) => { visible = entry.isIntersecting; },
+      { threshold: 0 },
+    );
+    observer.observe(canvas);
 
     const resize = () => {
       canvas.width = canvas.offsetWidth;
@@ -124,9 +134,11 @@ export function Crystal3D({ className = "" }: { className?: string }) {
         velRef.current = { x: dy * 0.006, y: dx * 0.006 };
         return;
       }
-      const h = toHover(e);
-      hoverRef.current.x = clamp(h.x, -1, 1);
-      hoverRef.current.y = clamp(h.y, -1, 1);
+      if (!isTouch) {
+        const h = toHover(e);
+        hoverRef.current.x = clamp(h.x, -1, 1);
+        hoverRef.current.y = clamp(h.y, -1, 1);
+      }
     };
 
     const endDrag = () => {
@@ -141,7 +153,12 @@ export function Crystal3D({ className = "" }: { className?: string }) {
     };
 
     const draw = () => {
-      autoRotRef.current += 0.004;
+      if (!visible) {
+        rafRef.current = requestAnimationFrame(draw);
+        return;
+      }
+
+      autoRotRef.current += autoRotSpeed;
       const auto = autoRotRef.current;
 
       if (!draggingRef.current) {
@@ -231,13 +248,14 @@ export function Crystal3D({ className = "" }: { className?: string }) {
       canvas.removeEventListener("pointercancel", endDrag);
       canvas.removeEventListener("pointerleave", onPointerLeave);
       cancelAnimationFrame(rafRef.current);
+      observer.disconnect();
     };
   }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      className={`h-full w-full touch-none ${className}`}
+      className={`h-full w-full touch-none overflow-hidden ${className}`}
       style={{ cursor: "grab" }}
       aria-hidden="true"
     />

@@ -17,15 +17,42 @@ import type { ApiClient } from "./contract";
  *   GET  /api/model/metrics
  */
 function createLiveClient(baseUrl: string): ApiClient {
+  const TIMEOUT_MS = 15_000;
+
   async function http<T>(path: string, init?: RequestInit): Promise<T> {
-    const res = await fetch(`${baseUrl}${path}`, {
-      ...init,
-      headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
-    });
-    if (!res.ok) {
-      throw new Error(`API error ${res.status} on ${path}`);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+    try {
+      const res = await fetch(`${baseUrl}${path}`, {
+        ...init,
+        signal: controller.signal,
+        headers: {
+          "Content-Type": "application/json",
+          ...(init?.headers ?? {}),
+        },
+      });
+      if (!res.ok) {
+        const body = await res.text().catch(() => "");
+        throw new Error(
+          body || `API error ${res.status} on ${path}`,
+        );
+      }
+      const text = await res.text();
+      return (text ? JSON.parse(text) : (undefined as T)) as T;
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        throw new Error(`Request timed out on ${path}`);
+      }
+      if (err instanceof TypeError && String(err).includes("Failed to fetch")) {
+        throw new Error(
+          `Network error — is the backend running at ${baseUrl}?`,
+        );
+      }
+      throw err;
+    } finally {
+      clearTimeout(timer);
     }
-    return (await res.json()) as T;
   }
 
   return {

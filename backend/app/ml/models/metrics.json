@@ -1,0 +1,53 @@
+{
+  "demo": true,
+  "note": "Metrics computed on SYNTHETIC data; not real experimental performance.",
+  "dataset_rows": 500,
+  "train_rows": 400,
+  "test_rows": 100,
+  "targets": [
+    "corrosion_resistance",
+    "corrosion_rate",
+    "coating_thickness",
+    "porosity",
+    "pore_size",
+    "wear_resistance"
+  ],
+  "metrics": {
+    "corrosion_resistance": {
+      "r2": 0.6879421464877906,
+      "mae": 5.713944675705326,
+      "rmse": 7.122941582213566,
+      "mape": 1.2359946036418679
+    },
+    "corrosion_rate": {
+      "r2": 0.7837311542395263,
+      "mae": 0.23190670946541744,
+      "rmse": 0.3152570075256423,
+      "mape": 0.3135765778073857
+    },
+    "coating_thickness": {
+      "r2": 0.8870748421421727,
+      "mae": 5.015387407491821,
+      "rmse": 6.462872596046471,
+      "mape": 0.12819829505726696
+    },
+    "porosity": {
+      "r2": 0.7709522546151124,
+      "mae": 1.9042639588239103,
+      "rmse": 2.438562639421752,
+      "mape": 0.22151217293000325
+    },
+    "pore_size": {
+      "r2": 0.8922414905903112,
+      "mae": 0.9062992544196539,
+      "rmse": 1.2233330656699906,
+      "mape": 0.14954551004373784
+    },
+    "wear_resistance": {
+      "r2": 0.8123746656434032,
+      "mae": 15.645113377583693,
+      "rmse": 19.606064596986535,
+      "mape": 0.1937629932595888
+    }
+  }
+}

@@ -6,6 +6,8 @@ import {
   FileText,
   Table2,
   BrainCircuit,
+  SlidersHorizontal,
+  BarChart3,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -77,6 +79,35 @@ export const navSections: NavSection[] = [
         label: "Model Performance",
         description: "Training & evaluation",
         icon: BrainCircuit,
+      },
+    ],
+  },
+  {
+    label: "ML Analysis",
+    items: [
+      {
+        href: "/ml/prediction",
+        label: "ML Prediction",
+        description: "ML-based coating performance",
+        icon: BrainCircuit,
+      },
+      {
+        href: "/ml/optimization",
+        label: "Optimizer",
+        description: "Multi-objective combination optimizer",
+        icon: SlidersHorizontal,
+      },
+      {
+        href: "/ml/morphology",
+        label: "Morphology",
+        description: "Image-based pore analysis",
+        icon: ScanLine,
+      },
+      {
+        href: "/ml/figure",
+        label: "Figure Extract",
+        description: "Extract data from figures",
+        icon: BarChart3,
       },
     ],
   },

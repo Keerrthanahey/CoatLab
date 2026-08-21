@@ -21,16 +21,28 @@ export function ParticleCanvas({ className = "" }: { className?: string }) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d")!;
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let visible = true;
+    const observer = new IntersectionObserver(
+      ([entry]) => { visible = entry.isIntersecting; },
+      { threshold: 0 },
+    );
+    observer.observe(canvas);
 
     const resize = () => {
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
       initParticles();
+      if (prefersReduced) drawStatic();
     };
+
+    const isMobile = () => window.innerWidth < 768;
 
     const initParticles = () => {
       const count = Math.floor((canvas.width * canvas.height) / 8000);
-      particles.current = Array.from({ length: Math.max(40, Math.min(count, 100)) }, () => ({
+      const max = isMobile() ? 25 : 100;
+      particles.current = Array.from({ length: Math.max(40, Math.min(count, max)) }, () => ({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         vx: (Math.random() - 0.5) * 0.3,
@@ -54,7 +66,41 @@ export function ParticleCanvas({ className = "" }: { className?: string }) {
     const MAX_SPEED = 2.5;
     const CONNECT_DIST = 90;
 
+    const drawStatic = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const ps = particles.current;
+
+      for (let i = 0; i < ps.length; i++) {
+        for (let j = i + 1; j < ps.length; j++) {
+          const dx = ps[i].x - ps[j].x;
+          const dy = ps[i].y - ps[j].y;
+          const d = Math.sqrt(dx * dx + dy * dy);
+          if (d < CONNECT_DIST) {
+            const alpha = (1 - d / CONNECT_DIST) * 0.18;
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(20,184,166,${alpha})`;
+            ctx.lineWidth = 0.6;
+            ctx.moveTo(ps[i].x, ps[i].y);
+            ctx.lineTo(ps[j].x, ps[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      for (const p of ps) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(20,184,166,${p.opacity})`;
+        ctx.fill();
+      }
+    };
+
     const draw = () => {
+      if (!visible) {
+        rafRef.current = requestAnimationFrame(draw);
+        return;
+      }
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const ps = particles.current;
       const mx = mouse.current.x;
@@ -124,20 +170,26 @@ export function ParticleCanvas({ className = "" }: { className?: string }) {
     window.addEventListener("resize", resize);
     canvas.addEventListener("mousemove", onMouseMove);
     canvas.addEventListener("mouseleave", onMouseLeave);
-    draw();
+
+    if (prefersReduced) {
+      drawStatic();
+    } else {
+      draw();
+    }
 
     return () => {
       window.removeEventListener("resize", resize);
       canvas.removeEventListener("mousemove", onMouseMove);
       canvas.removeEventListener("mouseleave", onMouseLeave);
       cancelAnimationFrame(rafRef.current);
+      observer.disconnect();
     };
   }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      className={`absolute inset-0 h-full w-full ${className}`}
+      className={`absolute inset-0 h-full w-full overflow-hidden ${className}`}
       aria-hidden="true"
     />
   );

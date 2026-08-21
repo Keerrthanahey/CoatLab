@@ -91,7 +91,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-full">
       {/* Hero */}
-      <section className="relative flex min-h-[520px] items-center overflow-hidden rounded-2xl border border-white/[0.06]">
+      <section className="relative flex min-h-[320px] items-center overflow-hidden rounded-2xl border border-white/[0.06] sm:min-h-[420px] lg:min-h-[520px]">
         <ParticleCanvas />
         <div
           className="absolute inset-0 z-[1]"
@@ -101,7 +101,7 @@ export default function DashboardPage() {
           }}
         />
 
-        <div className="relative z-10 grid w-full grid-cols-1 items-center gap-12 px-6 py-16 lg:grid-cols-2 sm:px-8">
+        <div className="relative z-10 grid w-full grid-cols-1 items-center gap-8 px-4 py-10 sm:gap-12 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-16">
           {/* Left */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -113,17 +113,17 @@ export default function DashboardPage() {
               Mg Coating Analysis Platform
             </div>
 
-            <h2 className="font-display text-4xl leading-tight text-white md:text-5xl">
+            <h2 className="font-display text-3xl leading-tight text-white sm:text-4xl md:text-5xl">
               Materials
               <br />
               <span style={{ color: "#14b8a6" }}>Intelligence</span> Platform
             </h2>
-            <p className="mb-8 mt-4 max-w-md text-base leading-relaxed text-slate-400">
+            <p className="mb-6 mt-4 max-w-md text-sm leading-relaxed text-slate-400 sm:text-base sm:mb-8">
               AI-assisted prediction and analysis of coating properties for advanced magnesium
               materials. Connect your research data and unlock model-driven insights.
             </p>
 
-            <div className="mb-12 flex flex-wrap gap-3">
+            <div className="mb-8 flex flex-wrap gap-3 sm:mb-12">
               <Link
                 href="/prediction"
                 className="rounded-lg bg-teal-500 px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-teal-400"
@@ -138,7 +138,7 @@ export default function DashboardPage() {
               </Link>
             </div>
 
-            <div className="flex flex-wrap gap-10">
+            <div className="flex flex-wrap gap-6 sm:gap-10">
               <StatCounter value={6} label="Predicted Properties" />
               <StatCounter value={8} label="Process Parameters" />
               <StatCounter value={3} label="Analysis Modules" />
@@ -192,7 +192,7 @@ export default function DashboardPage() {
           </h3>
           <span className="font-mono text-xs text-slate-600">mp-153 · Mg</span>
         </div>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
           {KPI_CARDS.map((card) => (
             <motion.div
               key={card.label}
@@ -206,7 +206,7 @@ export default function DashboardPage() {
                   className="h-1.5 w-1.5 flex-shrink-0 rounded-full"
                   style={{ backgroundColor: STATUS_COLOR[card.status] }}
                 />
-                <span className="text-xs text-slate-500">{card.label}</span>
+                <span className="truncate text-xs text-slate-500">{card.label}</span>
               </div>
               <div
                 className={`mb-0.5 text-xl font-semibold ${card.mono ? "font-mono text-base" : "font-display"}`}
@@ -221,7 +221,7 @@ export default function DashboardPage() {
               >
                 {card.value}
               </div>
-              <div className="text-xs text-slate-500">{card.sub}</div>
+              <div className="truncate text-xs text-slate-500">{card.sub}</div>
             </motion.div>
           ))}
         </div>
@@ -234,7 +234,7 @@ export default function DashboardPage() {
             Quick Actions
           </h3>
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 break-words sm:grid-cols-2 xl:grid-cols-4">
           {quickActions.map((action, i) => (
             <TiltCard key={action.href} className="rounded-xl">
               <motion.div
@@ -252,11 +252,11 @@ export default function DashboardPage() {
                   >
                     <action.icon className="h-5 w-5" />
                   </span>
-                  <span className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-slate-200 transition-colors group-hover:text-white">
+                    <span className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-slate-200 break-words transition-colors group-hover:text-white">
                     {action.title}
                     <ArrowUpRight className="h-4 w-4 text-slate-600 transition-colors group-hover:text-teal-400" />
                   </span>
-                  <span className="text-xs leading-relaxed text-slate-500">
+                  <span className="text-xs leading-relaxed text-slate-500 break-words">
                     {action.description}
                   </span>
                 </Link>
@@ -294,7 +294,7 @@ export default function DashboardPage() {
       </section>
 
       {/* Systems */}
-      <section className="grid gap-4 pb-10 lg:grid-cols-2">
+      <section className="grid gap-4 pb-10 sm:grid-cols-1 lg:grid-cols-2">
         <Card>
           <CardHeader
             title="Service endpoints"

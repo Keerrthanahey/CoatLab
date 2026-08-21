@@ -18,8 +18,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         onCloseMobile={() => setMobileOpen(false)}
       />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar onOpenMobile={() => setMobileOpen(true)} />
-        <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 py-8 sm:px-6 lg:px-8">
+        <Topbar onOpenMobile={() => setMobileOpen(true)} mobileOpen={mobileOpen} />
+        <main className="mx-auto w-full max-w-[1400px] flex-1 overflow-x-hidden px-4 py-8 sm:px-6 lg:px-8">
           {children}
         </main>
         <footer className="border-t border-white/[0.06] py-4">
