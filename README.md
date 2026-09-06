@@ -44,10 +44,10 @@ npm install
 npm run dev
 
 # run on a specific port
-npm run dev -- -p 3333
+npm run dev -- -p 3000
 ```
 
-Open [http://localhost:33333](http://localhost:3333).
+Open [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
