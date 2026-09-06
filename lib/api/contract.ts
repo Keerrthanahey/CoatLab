@@ -12,15 +12,22 @@ import type {
   SensitivityResponse,
 } from "@/lib/types";
 
-export interface CoatingPrediction {
+export interface CoatingPredictions {
   corrosion_resistance: number;
   corrosion_rate: number;
   coating_thickness: number;
   porosity: number;
   pore_size: number;
   wear_resistance: number;
+}
+
+export interface CoatingPrediction {
+  predictions: CoatingPredictions;
+  prediction_status: string;
+  data_status: string;
+  demo_status: string;
+  model_name: string;
   demo: boolean;
-  model_id: string;
 }
 
 export interface CoatingInput {
@@ -30,38 +37,59 @@ export interface CoatingInput {
   reinforcement_percentage?: number;
   particle_size?: number;
   coating_method?: string;
+  electrolyte_composition?: string;
+  current_voltage_mode?: string;
+  ac_dc_mode?: string;
+  current_density?: number;
   voltage?: number;
-  current?: number;
+  frequency?: number;
+  duty_cycle?: number;
+  treatment_time?: number;
   temperature?: number;
   pressure?: number;
   spray_distance?: number;
-  deposition_time?: number;
-  speed?: number;
-  num_passes?: number;
-  heat_treatment_temp?: number;
+  heat_treatment_temperature?: number;
   heat_treatment_time?: number;
   cooling_method?: string;
   surface_roughness?: number;
   surface_preparation?: string;
   surface_hardness?: number;
+  speed?: number;
+  num_passes?: number;
+}
+
+export interface ObjectiveWeights {
+  corrosion_resistance?: number;
+  wear_resistance?: number;
+  corrosion_rate?: number;
+  porosity?: number;
+  coating_thickness?: number;
+  pore_size?: number;
 }
 
 export interface OptimizationRequest {
   ranges: Record<string, number[]>;
-  weights?: Record<string, number>;
+  weights?: ObjectiveWeights;
   max_combinations?: number;
 }
 
-export interface RankedCombo {
+export interface OptimizationEntry {
   rank: number;
   params: Record<string, unknown>;
-  predictions: CoatingPrediction;
-  overall_score: number;
+  predicted_outputs: CoatingPredictions;
+  score: number;
+  objective_weights: ObjectiveWeights;
 }
 
 export interface OptimizationResult {
   total_evaluated: number;
-  ranked: RankedCombo[];
+  best_combination: OptimizationEntry;
+  top_10_combinations: OptimizationEntry[];
+  predicted_outputs: CoatingPredictions;
+  score: number;
+  objective_weights: ObjectiveWeights;
+  data_status: string;
+  demo_status: string;
   demo: boolean;
 }
 

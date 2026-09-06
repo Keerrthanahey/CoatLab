@@ -44,65 +44,84 @@ interface SectionSpec {
   numbers: NumberSpec[];
 }
 
+const MATERIAL_SELECTS = {
+  substrates: ["Magnesium", "Aluminum", "Zirconium", "Tantalum"],
+  coatings: ["Magnesium", "Aluminum", "Zirconium", "Tantalum", "MgO", "Al2O3", "ZrO2", "TiO2"],
+  reinforcements: ["none", "SiC", "Al2O3", "TiO2", "graphene", "Si3N4", "ZrO2"],
+};
+
 const SECTIONS: SectionSpec[] = [
   {
     title: "Material System",
-    subtitle: "Substrate, coating chemistry and reinforcement",
+    subtitle: "Substrate and coating chemistry (Mg / Al / Zr / Ta)",
     icon: <Layers className="h-4 w-4" />,
     selects: [
-      { id: "substrate_material", label: "Substrate material", options: ["Mg", "Al", "Ti", "Steel"] },
-      { id: "coating_material", label: "Coating material", options: ["Al2O3", "SiO2", "TiO2", "ZrO2"] },
-      { id: "reinforcement", label: "Reinforcement", options: ["none", "SiC", "Al2O3", "TiO2", "graphene"] },
+      { id: "substrate_material", label: "Substrate material", options: MATERIAL_SELECTS.substrates },
+      { id: "coating_material", label: "Coating material", options: MATERIAL_SELECTS.coatings },
+      { id: "reinforcement", label: "Reinforcement", options: MATERIAL_SELECTS.reinforcements },
     ],
     numbers: [
-      { id: "reinforcement_percentage", label: "Reinforcement percentage", unit: "%", min: 0, max: 30, step: 0.5 },
+      { id: "reinforcement_percentage", label: "Reinforcement percentage", unit: "%", min: 0, max: 50, step: 0.5 },
       { id: "particle_size", label: "Particle size", unit: "μm", min: 0, max: 500, step: 1 },
     ],
   },
   {
-    title: "Process Parameters",
-    subtitle: "Deposition conditions and kinematics",
+    title: "Electrochemical Process",
+    subtitle: "PEO / anodizing / electrodeposition parameters",
     icon: <SlidersHorizontal className="h-4 w-4" />,
     selects: [
-      { id: "coating_method", label: "Coating method", options: ["PEO", "HVOF", "Cold_Spray", "Electroplating"] },
+      { id: "coating_method", label: "Coating method", options: ["PEO", "anodizing", "plasma_spray", "electrodeposition", "sol_gel"] },
+      { id: "electrolyte_composition", label: "Electrolyte composition", options: ["NaOH", "KOH", "aluminate", "silicate", "phosphate", "fluoride", "mixed_oxide"] },
+      { id: "current_voltage_mode", label: "Current / Voltage mode", options: ["constant_current", "constant_voltage"] },
+      { id: "ac_dc_mode", label: "AC / DC mode", options: ["AC", "DC"] },
     ],
     numbers: [
+      { id: "current_density", label: "Current density", unit: "A/dm²", min: 0, max: 200, step: 0.5 },
       { id: "voltage", label: "Voltage", unit: "V", min: 0, max: 600, step: 1 },
-      { id: "current", label: "Current", unit: "A", min: 0, max: 50, step: 0.1 },
+      { id: "frequency", label: "Frequency", unit: "Hz", min: 0, max: 10000, step: 10 },
+      { id: "duty_cycle", label: "Duty cycle", unit: "%", min: 0, max: 100, step: 1 },
+      { id: "treatment_time", label: "Treatment time", unit: "min", min: 0, max: 600, step: 1 },
       { id: "temperature", label: "Temperature", unit: "°C", min: 0, max: 800, step: 1 },
-      { id: "pressure", label: "Pressure", unit: "bar", min: 0, max: 10, step: 0.1 },
-      { id: "spray_distance", label: "Spray distance", unit: "mm", min: 0, max: 500, step: 1 },
-      { id: "deposition_time", label: "Deposition time", unit: "min", min: 0, max: 120, step: 1 },
-      { id: "speed", label: "Speed", unit: "mm/s", min: 0, max: 500, step: 1 },
-      { id: "num_passes", label: "Number of passes", unit: "×", min: 1, max: 10, step: 1 },
     ],
   },
   {
-    title: "Thermal Treatment",
+    title: "Thermal Spray / Kinematics",
+    subtitle: "Plasma / HVOF type conditions",
+    icon: <FlaskConical className="h-4 w-4" />,
+    selects: [],
+    numbers: [
+      { id: "pressure", label: "Pressure", unit: "bar", min: 0, max: 50, step: 0.1 },
+      { id: "spray_distance", label: "Spray distance", unit: "mm", min: 0, max: 500, step: 1 },
+      { id: "speed", label: "Speed", unit: "mm/s", min: 0, max: 500, step: 1 },
+      { id: "num_passes", label: "Number of passes", unit: "×", min: 1, max: 20, step: 1 },
+    ],
+  },
+  {
+    title: "Heat Treatment",
     subtitle: "Post-deposition heat treatment",
     icon: <Thermometer className="h-4 w-4" />,
     selects: [
       { id: "cooling_method", label: "Cooling method", options: ["air", "water", "oil", "furnace"] },
     ],
     numbers: [
-      { id: "heat_treatment_temp", label: "Heat treatment temp", unit: "°C", min: 0, max: 1000, step: 1 },
-      { id: "heat_treatment_time", label: "Heat treatment time", unit: "min", min: 0, max: 240, step: 1 },
+      { id: "heat_treatment_temperature", label: "Heat treatment temperature", unit: "°C", min: 0, max: 1200, step: 1 },
+      { id: "heat_treatment_time", label: "Heat treatment time", unit: "min", min: 0, max: 480, step: 1 },
     ],
   },
   {
     title: "Surface Condition",
     subtitle: "Pre-treatment state of the substrate",
-    icon: <FlaskConical className="h-4 w-4" />,
+    icon: <Layers className="h-4 w-4" />,
     selects: [
       {
         id: "surface_preparation",
         label: "Surface preparation",
-        options: ["ground", "polished", "sandblasted", "as-received"],
+        options: ["ground", "polished", "sandblasted", "as_received"],
       },
     ],
     numbers: [
       { id: "surface_roughness", label: "Surface roughness", unit: "μm Ra", min: 0, max: 50, step: 0.1 },
-      { id: "surface_hardness", label: "Surface hardness", unit: "HV", min: 0, max: 200, step: 1 },
+      { id: "surface_hardness", label: "Surface hardness", unit: "HV", min: 0, max: 300, step: 1 },
     ],
   },
 ];
@@ -133,21 +152,26 @@ const METRICS: Array<{
 ];
 
 const DEFAULT_VALUES: FormValues = {
-  substrate_material: "Mg",
+  substrate_material: "Magnesium",
   coating_material: "Al2O3",
   reinforcement: "none",
   reinforcement_percentage: "5",
-  particle_size: "20",
+  particle_size: "5",
   coating_method: "PEO",
+  electrolyte_composition: "NaOH",
+  current_voltage_mode: "constant_current",
+  ac_dc_mode: "DC",
+  current_density: "10",
   voltage: "350",
-  current: "10",
+  frequency: "0",
+  duty_cycle: "50",
+  treatment_time: "30",
   temperature: "25",
   pressure: "2",
   spray_distance: "150",
-  deposition_time: "30",
-  speed: "200",
+  speed: "10",
   num_passes: "3",
-  heat_treatment_temp: "200",
+  heat_treatment_temperature: "200",
   heat_treatment_time: "60",
   cooling_method: "air",
   surface_roughness: "1.2",

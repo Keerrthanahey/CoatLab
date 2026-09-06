@@ -56,7 +56,7 @@ def log_prediction(input_data: dict, output_data: dict, tags: list[str] | None =
                 inputs=input_data,
                 outputs=output_data,
                 tags=tags or ["ml", "prediction"],
-                project_name=os.getenv("LANGCHAIN_PROJECT", "CoatLab"),
+                project_name=os.getenv("LANGCHAIN_PROJECT", "CoatLab-ML"),
             )
     except Exception:
         logger.debug("Failed to log prediction to LangSmith")
@@ -75,7 +75,7 @@ def log_optimization(input_data: dict, output_data: dict) -> None:
                 inputs=input_data,
                 outputs={"total_evaluated": output_data.get("total_evaluated", 0)},
                 tags=["ml", "optimization"],
-                project_name=os.getenv("LANGCHAIN_PROJECT", "CoatLab"),
+                project_name=os.getenv("LANGCHAIN_PROJECT", "CoatLab-ML"),
             )
     except Exception:
         logger.debug("Failed to log optimization to LangSmith")

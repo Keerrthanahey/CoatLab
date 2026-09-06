@@ -29,6 +29,7 @@ async def morphology_analyze(file: UploadFile = File(...)) -> MorphologyResult:
             image_width=0, image_height=0, pore_count=0,
             porosity_percent=0, avg_pore_size=0, max_pore_size=0,
             min_pore_size=0, distribution=[], classification="unknown",
+            calibration="pixel units (no calibration provided)",
         )
 
     h, w = img.shape[:2]

@@ -1,8 +1,8 @@
 """Training entry point — compares RF vs GradientBoosting per target.
 
-Loads the synthetic dataset, fits the preprocessor, trains both
-RandomForestRegressor and GradientBoostingRegressor for each of the
-6 coating-property targets, evaluates on a held-out 20% test split,
+Loads the synthetic dataset (via the data loader), fits the preprocessor,
+trains both RandomForestRegressor and GradientBoostingRegressor for each
+of the 6 coating-property targets, evaluates on a held-out 20% test split,
 and selects the best model per target by R².
 
 Artifacts saved to ``app/ml/models/``:
@@ -24,7 +24,13 @@ from pathlib import Path
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from app.ml.features import ALL_FEATURES, TARGETS
+from app.ml.data_loader import load_dataset, split_features_targets
+from app.ml.features import (
+    ALL_FEATURES,
+    COATING_MATERIALS,
+    SUBSTRATE_MATERIALS,
+    TARGETS,
+)
 from app.ml.models import CoatingModelManager
 from app.ml.preprocessing import CoatingPreprocessor
 
@@ -40,18 +46,9 @@ TEST_SIZE = 0.2
 RANDOM_SEED = 42
 
 
-def load_dataset(path: Path = DATA_PATH) -> pd.DataFrame:
-    if not path.exists():
-        raise FileNotFoundError(
-            f"Dataset not found at {path}. Generate with: python -m app.ml.synthetic_dataset"
-        )
-    return pd.read_csv(path)
-
-
-def main() -> None:
-    df = load_dataset()
-    X = df[ALL_FEATURES]
-    y = df[TARGETS]
+def main(dataset_path: Path | str = DATA_PATH) -> None:
+    df = load_dataset(dataset_path)
+    X, y = split_features_targets(df)
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=TEST_SIZE, random_state=RANDOM_SEED
@@ -90,6 +87,8 @@ def main() -> None:
         "train_rows": int(len(X_train)),
         "test_rows": int(len(X_test)),
         "targets": TARGETS,
+        "supported_substrates": SUBSTRATE_MATERIALS,
+        "supported_coatings": COATING_MATERIALS,
         "metrics": metrics,
     }
     (MODELS_DIR / METRICS_FILENAME).write_text(json.dumps(metrics_payload, indent=2))
@@ -99,6 +98,8 @@ def main() -> None:
     print("[DEMO] CoatLab ML Training — Synthetic Data Only")
     print("=" * 80)
     print(f"[DEMO] Dataset rows: {len(df)} | Train: {len(X_train)} | Test: {len(X_test)}")
+    print(f"[DEMO] Substrates:  {', '.join(SUBSTRATE_MATERIALS)}")
+    print(f"[DEMO] Coatings:    {', '.join(COATING_MATERIALS)}")
     print()
     header = f"{'Target':<22}{'Model':<28}{'R²':>8}{'MAE':>10}{'RMSE':>10}{'MAPE':>10}"
     print(header)

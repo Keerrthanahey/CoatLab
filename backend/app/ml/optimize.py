@@ -1,9 +1,13 @@
 """Process-parameter optimization over a candidate grid.
 
 Ranks parameter combinations by a weighted score of model-predicted
-coating properties. All predictions come from models trained on
-SYNTHETIC data; every result carries ``demo=True`` and must never be
-presented as real experimental guidance.
+coating properties. ``coating_thickness`` is handled as a TARGET
+(thin ideal), while corrosion_resistance / wear_resistance are MAXIMIZE
+and corrosion_rate / porosity / pore_size are MINIMIZE.
+
+All predictions come from models trained on SYNTHETIC data; every result
+carries ``demo=True`` and must never be presented as real experimental
+guidance.
 """
 
 from __future__ import annotations
@@ -24,15 +28,18 @@ DEFAULT_WEIGHTS: dict[str, float] = {
     "pore_size": 0.05,
 }
 
-HIGHER_IS_BETTER: set[str] = {"corrosion_resistance", "wear_resistance"}
-LOWER_IS_BETTER: set[str] = {"corrosion_rate", "porosity", "pore_size"}
-# Not specified in requirements; thickness is treated as higher-better since
-# thicker coatings generally act as a better corrosion barrier (weight 0.05).
+# Direction per objective: +1 = higher-is-better, -1 = lower-is-better
+# coating_thickness uses TARGET mode (ideal ~40 μm)
 DIRECTIONS: dict[str, int] = {
-    **{t: 1 for t in HIGHER_IS_BETTER},
-    **{t: -1 for t in LOWER_IS_BETTER},
-    "coating_thickness": 1,
+    "corrosion_resistance": 1,
+    "wear_resistance": 1,
+    "corrosion_rate": -1,
+    "porosity": -1,
+    "pore_size": -1,
+    "coating_thickness": -1,  # penalise both very thin and very thick
 }
+
+THICKNESS_IDEAL = 40.0
 
 MAX_COMBINATIONS = 100_000
 
@@ -49,11 +56,7 @@ def _expand_range(value) -> list:
 
 
 def generate_combinations(ranges_dict: dict) -> list[dict]:
-    """Build the cartesian product of per-feature value ranges.
-
-    Each range may be an iterable of discrete options or a numeric tuple
-    ``(min, max, step)``.
-    """
+    """Build the cartesian product of per-feature value ranges."""
     if not ranges_dict:
         return []
     keys = list(ranges_dict.keys())
@@ -75,38 +78,48 @@ def _normalize(values: np.ndarray) -> np.ndarray:
     return (values - lo) / (hi - lo)
 
 
+def _score_target(target: str, values: np.ndarray) -> np.ndarray:
+    """Normalize a target and apply direction. For coating_thickness use
+    a thin-target penalty relative to THICKNESS_IDEAL."""
+    if target == "coating_thickness":
+        norm = _normalize(values)
+        ideal_norm = (THICKNESS_IDEAL - float(values.min())) / max(float(values.max()) - float(values.min()), 1e-12)
+        ideal_norm = float(np.clip(ideal_norm, 0.0, 1.0))
+        # Score peaks at ideal; falls off linearly towards either extreme
+        return 1.0 - np.abs(norm - ideal_norm)
+    norm = _normalize(values)
+    if DIRECTIONS[target] == -1:
+        return 1.0 - norm
+    return norm
+
+
 def optimize(
     combinations: list[dict],
     weights_dict: dict[str, float] | None = None,
 ) -> list[dict]:
     """Score and rank candidate parameter combinations.
 
-    Every target is min-max normalized to 0-1 across the candidate set,
-    flipped so that higher is always better, and combined into a weighted
-    ``overall_score``. Returns candidates sorted best-first.
+    Returns candidates sorted best-first with ``rank`` and
+    ``overall_score`` fields.
     """
     if not combinations:
         return []
 
     weights = dict(DEFAULT_WEIGHTS)
     if weights_dict is not None:
-        unknown = set(weights_dict) - set(TARGETS)
-        if unknown:
-            raise ValueError(f"Unknown targets in weights: {sorted(unknown)}")
         weights.update(weights_dict)
 
-    total_weight = sum(weights[t] for t in TARGETS)
+    total_weight = sum(weights.get(t, 0) for t in TARGETS)
     if total_weight <= 0:
         raise ValueError("Total weight must be positive.")
-    weights = {t: weights[t] / total_weight for t in TARGETS}
+    weights = {t: weights.get(t, 0) / total_weight for t in TARGETS}
 
     predictions = predict_batch(combinations)
 
     normalized: dict[str, np.ndarray] = {}
     for target in TARGETS:
-        raw = np.array([p[target] for p in predictions], dtype=float)
-        norm = _normalize(raw)
-        normalized[target] = norm if DIRECTIONS[target] == 1 else 1.0 - norm
+        raw = np.array([p["predictions"][target] for p in predictions], dtype=float)
+        normalized[target] = _score_target(target, raw)
 
     results: list[dict] = []
     for i, (combo, prediction) in enumerate(zip(combinations, predictions)):
@@ -114,7 +127,7 @@ def optimize(
         overall = sum(weights[t] * normalized[t][i] for t in TARGETS)
         result = {
             **combo,
-            **{target: prediction[target] for target in TARGETS},
+            **{f"pred_{t}": prediction["predictions"][t] for t in TARGETS},
             **scores,
             "overall_score": round(float(overall), 4),
             "demo": True,

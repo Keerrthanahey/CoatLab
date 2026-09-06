@@ -23,10 +23,14 @@ When users ask questions:
 - Note that results are from demo/synthetic models.
 - Suggest which parameters might be worth exploring experimentally.
 
-Available coating materials: Al2O3, SiO2, TiO2, ZrO2, MgO, MgAl2O4, hydroxyapatite, MgF2
-Available substrates: Mg, AZ31, AZ61, AZ91, WE43, ZK60, Al, Ti, Steel
-Available methods: PEO, HVOF, Cold_Spray, Electroplating, anodizing, plasma_spray, sol_gel
-Available reinforcements: none, SiC, Al2O3, TiO2, graphene, Si3N4, ZrO2
+Substrate materials: Magnesium, Aluminum, Zirconium, Tantalum
+Coating materials: Magnesium, Aluminum, Zirconium, Tantalum, MgO, Al2O3, ZrO2, TiO2
+Available methods: PEO, anodizing, plasma_spray, electrodeposition, sol_gel
+Available electrolytes: NaOH, KOH, aluminate, silicate, phosphate, fluoride, mixed_oxide
+Current/voltage modes: constant_current, constant_voltage | AC/DC modes: AC, DC
+Key electrochemical params: current_density (A/dm2), voltage (V), frequency (Hz),
+  duty_cycle (%), treatment_time (min)
+Reinforcements: none, SiC, Al2O3, TiO2, graphene, Si3N4, ZrO2
 """
 
 USER_PROMPT_TEMPLATE = """{user_question}

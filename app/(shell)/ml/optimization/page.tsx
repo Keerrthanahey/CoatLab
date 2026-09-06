@@ -6,7 +6,7 @@ import { CheckCircle2, Loader2, Sparkles, Trophy } from "lucide-react";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Field, NumberInput, TextInput } from "@/components/ui/form";
+import { Field, NumberInput, SelectInput, TextInput } from "@/components/ui/form";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState, StateBanner } from "@/components/ui/empty-state";
 import { ComparisonTable, type ComparisonColumn } from "@/components/charts/comparison-table";
@@ -14,7 +14,8 @@ import { BarCompare } from "@/components/charts/bar-compare";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
-const MATERIALS = ["Al2O3", "SiO2", "TiO2", "ZrO2"];
+const SUBSTRATES = ["Magnesium", "Aluminum", "Zirconium", "Tantalum"];
+const COATINGS = ["Magnesium", "Aluminum", "Zirconium", "Tantalum", "MgO", "Al2O3", "ZrO2", "TiO2"];
 
 const WEIGHT_KEYS = [
   { id: "corrosion_resistance", label: "Corrosion resistance" },
@@ -28,10 +29,12 @@ const WEIGHT_KEYS = [
 type WeightKey = (typeof WEIGHT_KEYS)[number]["id"];
 
 interface ComboRow {
+  substrate_material: string;
   coating_material: string;
-  temperature: number;
+  current_density: number;
   voltage: number;
-  current: number;
+  duty_cycle: number;
+  treatment_time: number;
   corrosion_resistance: number;
   wear_resistance: number;
   corrosion_rate: number;
@@ -43,11 +46,12 @@ interface ComboRow {
 
 const TABLE_COLUMNS: ComparisonColumn[] = [
   { key: "rank", label: "#" },
+  { key: "substrate_material", label: "Substrate" },
   { key: "coating_material", label: "Coating" },
-  { key: "temperature", label: "Temp", format: (v) => `${Number(v).toFixed(0)} °C` },
+  { key: "current_density", label: "Cur. dens", format: (v) => `${Number(v).toFixed(1)} A/dm²` },
   { key: "voltage", label: "Voltage", format: (v) => `${Number(v).toFixed(0)} V` },
-  { key: "current", label: "Current", format: (v) => `${Number(v).toFixed(1)} A` },
-  { key: "score", label: "Score", format: (v) => Number(v).toFixed(1) },
+  { key: "duty_cycle", label: "Duty", format: (v) => `${Number(v).toFixed(0)}%` },
+  { key: "score", label: "Score", format: (v) => Number(v).toFixed(3) },
   {
     key: "corrosion_resistance",
     label: "Corr. res",
@@ -75,43 +79,51 @@ function parseRange(raw: string): number[] | null {
 function normalizeCombos(raw: unknown): ComboRow[] {
   if (!raw || typeof raw !== "object") return [];
   const obj = raw as Record<string, unknown>;
-  const list = obj.combinations ?? obj.results ?? obj.candidates ?? obj.data;
+  const list = Array.isArray(obj.top_10_combinations)
+    ? obj.top_10_combinations
+    : obj.combinations ?? obj.results ?? obj.candidates;
   if (!Array.isArray(list)) return [];
-  const rows = list.map((item, i) => {
+  const rows = list.map((item) => {
     const r = (item ?? {}) as Record<string, unknown>;
-    const pred = (
-      r.predictions && typeof r.predictions === "object" ? r.predictions : r
-    ) as Record<string, unknown>;
-    const num = (key: string, fallback = 0) => {
-      const v = Number(pred[key] ?? r[key]);
-      return Number.isFinite(v) ? v : fallback;
+    const params = (r.params ?? {}) as Record<string, unknown>;
+    const pred = (r.predicted_outputs ?? {}) as Record<string, unknown>;
+    const get = (key: string, fallback: number | string = 0): number => {
+      const v = pred[key] ?? params[key] ?? fallback;
+      const n = Number(v ?? fallback);
+      return Number.isFinite(n) ? n : Number(fallback);
     };
-    const str = (key: string) => {
-      const v = pred[key] ?? r[key];
-      return v == null ? "—" : String(v);
+    const str = (key: string, fallback = "—"): string => {
+      const v = params[key];
+      return v == null ? fallback : String(v);
     };
     return {
+      substrate_material: str("substrate_material"),
       coating_material: str("coating_material"),
-      temperature: num("temperature"),
-      voltage: num("voltage"),
-      current: num("current"),
-      corrosion_resistance: num("corrosion_resistance"),
-      wear_resistance: num("wear_resistance"),
-      corrosion_rate: num("corrosion_rate"),
-      porosity: num("porosity"),
-      coating_thickness: num("coating_thickness"),
-      pore_size: num("pore_size"),
-      score: num("score", 100 - i),
+      current_density: get("current_density"),
+      voltage: get("voltage"),
+      duty_cycle: get("duty_cycle"),
+      treatment_time: get("treatment_time"),
+      corrosion_resistance: get("corrosion_resistance"),
+      wear_resistance: get("wear_resistance"),
+      corrosion_rate: get("corrosion_rate"),
+      porosity: get("porosity"),
+      coating_thickness: get("coating_thickness"),
+      pore_size: get("pore_size"),
+      score: get("score", 100),
     };
   });
   return rows.sort((a, b) => b.score - a.score);
 }
 
 export default function MLOptimizationPage() {
-  const [materials, setMaterials] = useState<string[]>(["Al2O3"]);
-  const [tempRange, setTempRange] = useState("200,300,400");
-  const [voltageRange, setVoltageRange] = useState("100,200,300");
-  const [currentRange, setCurrentRange] = useState("3,5,8");
+  const [substrates, setSubstrates] = useState<string[]>(["Magnesium"]);
+  const [coatings, setCoatings] = useState<string[]>(["Al2O3", "ZrO2", "Tantalum"]);
+  const [cdRange, setCdRange] = useState("5,10,20");
+  const [voltageRange, setVoltageRange] = useState("150,300,450");
+  const [dutyRange, setDutyRange] = useState("30,50,70");
+  const [timeRange, setTimeRange] = useState("15,30,60");
+  const [mode, setMode] = useState("constant_current");
+  const [acdc, setAcdc] = useState("DC");
   const [weights, setWeights] = useState<Record<WeightKey, string>>({
     corrosion_resistance: "25",
     wear_resistance: "15",
@@ -131,13 +143,12 @@ export default function MLOptimizationPage() {
   const weightsValid = Math.round(totalWeight * 100) / 100 === 100;
 
   const rangeError =
-    !parseRange(tempRange) || !parseRange(voltageRange) || !parseRange(currentRange);
-  const canSubmit = materials.length > 0 && weightsValid && !rangeError && !loading;
+    !parseRange(cdRange) || !parseRange(voltageRange) || !parseRange(dutyRange) || !parseRange(timeRange);
+  const canSubmit =
+    substrates.length > 0 && coatings.length > 0 && weightsValid && !rangeError && !loading;
 
-  const toggleMaterial = (m: string) => {
-    setMaterials((prev) =>
-      prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m],
-    );
+  const toggle = (list: string[], setter: (v: string[]) => void, m: string) => {
+    setter(list.includes(m) ? list.filter((x) => x !== m) : [...list, m]);
   };
 
   const handleOptimize = async () => {
@@ -145,13 +156,20 @@ export default function MLOptimizationPage() {
     setError(null);
     try {
       const payload = {
-        coating_materials: materials,
-        temperature: parseRange(tempRange),
-        voltage: parseRange(voltageRange),
-        current: parseRange(currentRange),
+        ranges: {
+          substrate_material: substrates,
+          coating_material: coatings,
+          current_voltage_mode: [mode],
+          ac_dc_mode: [acdc],
+          current_density: parseRange(cdRange),
+          voltage: parseRange(voltageRange),
+          duty_cycle: parseRange(dutyRange),
+          treatment_time: parseRange(timeRange),
+        },
         weights: Object.fromEntries(
           WEIGHT_KEYS.map((k) => [k.id, Number(weights[k.id]) || 0]),
         ),
+        max_combinations: 1000,
       };
       const res = await fetch(`${API_BASE}/api/ml/optimize`, {
         method: "POST",
@@ -182,7 +200,7 @@ export default function MLOptimizationPage() {
       <SectionHeader
         eyebrow="Multi-Objective"
         title="Coating Combination Optimizer"
-        description="Search the parameter space across candidate coatings and rank combinations against your weighted objectives."
+        description="Search Mg / Al / Zr / Ta material and process-parameter space, and rank combinations against your weighted objectives."
         demoLabel="Demo"
       />
 
@@ -196,18 +214,18 @@ export default function MLOptimizationPage() {
           <Card>
             <CardHeader
               title="Search Space"
-              subtitle="Candidate coatings and process value sets"
+              subtitle="Materials and electrochemical value sets"
               icon={<Sparkles className="h-4 w-4" />}
             />
 
             <div className="mt-4 space-y-4">
               <div>
                 <p className="mb-1.5 text-xs font-medium text-slate-400">
-                  Coating materials
+                  Substrate materials
                 </p>
                 <div className="grid grid-cols-2 gap-2">
-                  {MATERIALS.map((m) => {
-                    const checked = materials.includes(m);
+                  {SUBSTRATES.map((m) => {
+                    const checked = substrates.includes(m);
                     return (
                       <label
                         key={m}
@@ -220,7 +238,7 @@ export default function MLOptimizationPage() {
                         <input
                           type="checkbox"
                           checked={checked}
-                          onChange={() => toggleMaterial(m)}
+                          onChange={() => toggle(substrates, setSubstrates, m)}
                           className="h-3.5 w-3.5 accent-teal-500"
                         />
                         <span className="font-mono text-[13px]">{m}</span>
@@ -228,49 +246,106 @@ export default function MLOptimizationPage() {
                     );
                   })}
                 </div>
-                {materials.length === 0 && (
+              </div>
+
+              <div>
+                <p className="mb-1.5 text-xs font-medium text-slate-400">
+                  Coating materials
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {COATINGS.map((m) => {
+                    const checked = coatings.includes(m);
+                    return (
+                      <label
+                        key={m}
+                        className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
+                          checked
+                            ? "border-teal-500/40 bg-teal-500/10 text-teal-300"
+                            : "border-white/[0.12] bg-[#0c1428] text-slate-300 hover:border-white/25"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggle(coatings, setCoatings, m)}
+                          className="h-3.5 w-3.5 accent-teal-500"
+                        />
+                        <span className="font-mono text-[13px]">{m}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+                {(substrates.length === 0 || coatings.length === 0) && (
                   <p className="mt-1.5 text-[11px] text-red-600">
-                    Select at least one coating material.
+                    Select at least one substrate and one coating material.
                   </p>
                 )}
               </div>
 
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Current/Voltage mode">
+                  <SelectInput value={mode} onChange={(e) => setMode(e.target.value)}>
+                    <option value="constant_current">Constant current</option>
+                    <option value="constant_voltage">Constant voltage</option>
+                  </SelectInput>
+                </Field>
+                <Field label="AC / DC mode">
+                  <SelectInput value={acdc} onChange={(e) => setAcdc(e.target.value)}>
+                    <option value="DC">DC</option>
+                    <option value="AC">AC</option>
+                  </SelectInput>
+                </Field>
+              </div>
+
               <Field
-                label="Temperature values"
-                unit="°C"
-                hint="Comma-separated values, e.g. 200,300,400"
-                error={rangeError && !parseRange(tempRange) ? "Invalid number list" : null}
+                label="Current density values"
+                unit="A/dm²"
+                hint="Comma-separated values, e.g. 5,10,20"
+                error={rangeError && !parseRange(cdRange) ? "Invalid number list" : null}
               >
                 <TextInput
-                  value={tempRange}
-                  onChange={(e) => setTempRange(e.target.value)}
-                  placeholder="200,300,400"
+                  value={cdRange}
+                  onChange={(e) => setCdRange(e.target.value)}
+                  placeholder="5,10,20"
                 />
               </Field>
 
               <Field
                 label="Voltage values"
                 unit="V"
-                hint="Comma-separated values, e.g. 100,200,300"
+                hint="Comma-separated values, e.g. 150,300,450"
                 error={rangeError && !parseRange(voltageRange) ? "Invalid number list" : null}
               >
                 <TextInput
                   value={voltageRange}
                   onChange={(e) => setVoltageRange(e.target.value)}
-                  placeholder="100,200,300"
+                  placeholder="150,300,450"
                 />
               </Field>
 
               <Field
-                label="Current values"
-                unit="A"
-                hint="Comma-separated values, e.g. 3,5,8"
-                error={rangeError && !parseRange(currentRange) ? "Invalid number list" : null}
+                label="Duty cycle values"
+                unit="%"
+                hint="Comma-separated values, e.g. 30,50,70"
+                error={rangeError && !parseRange(dutyRange) ? "Invalid number list" : null}
               >
                 <TextInput
-                  value={currentRange}
-                  onChange={(e) => setCurrentRange(e.target.value)}
-                  placeholder="3,5,8"
+                  value={dutyRange}
+                  onChange={(e) => setDutyRange(e.target.value)}
+                  placeholder="30,50,70"
+                />
+              </Field>
+
+              <Field
+                label="Treatment time values"
+                unit="min"
+                hint="Comma-separated values, e.g. 15,30,60"
+                error={rangeError && !parseRange(timeRange) ? "Invalid number list" : null}
+              >
+                <TextInput
+                  value={timeRange}
+                  onChange={(e) => setTimeRange(e.target.value)}
+                  placeholder="15,30,60"
                 />
               </Field>
             </div>
@@ -328,8 +403,8 @@ export default function MLOptimizationPage() {
         >
           <StateBanner
             tone="amber"
-            title="Demo output"
-            description="Ranked combinations come from the local optimizer demo and are illustrative only — not verified scientific results."
+            title="Demo optimization"
+            description="Ranked combinations come from the local optimizer demo running on synthetic data — illustrative only, not experimentally validated."
           />
 
           {error && (
@@ -372,13 +447,14 @@ export default function MLOptimizationPage() {
                     <div>
                       <p className="text-sm font-semibold text-white">Best combination</p>
                       <p className="font-mono text-[11px] text-slate-400">
-                        {best.coating_material} · {best.temperature.toFixed(0)} °C ·{" "}
-                        {best.voltage.toFixed(0)} V · {best.current.toFixed(1)} A
+                        {best.coating_material} on {best.substrate_material} ·{" "}
+                        {best.current_density.toFixed(1)} A/dm² · {best.voltage.toFixed(0)} V ·{" "}
+                        {best.duty_cycle.toFixed(0)}% duty, {best.treatment_time.toFixed(0)} min
                       </p>
                     </div>
                   </div>
                   <Badge tone="teal" dot>
-                    Score {best.score.toFixed(1)}
+                    Score {best.score.toFixed(3)}
                   </Badge>
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -415,7 +491,7 @@ export default function MLOptimizationPage() {
                 />
                 <BarCompare
                   data={combos.slice(0, 5).map((c, i) => ({
-                    name: `${c.coating_material} @ ${c.temperature.toFixed(0)}°C`,
+                    name: `${c.coating_material}/${c.substrate_material}`,
                     score: c.score,
                     color: i === 0 ? "#14b8a6" : "#14b8a699",
                   }))}
@@ -429,7 +505,8 @@ export default function MLOptimizationPage() {
                   highlightIndex={0}
                 />
                 <p className="mt-2 text-[11px] text-slate-400">
-                  Ranked by composite score ({tableData.length} combinations evaluated).
+                  Ranked by composite score — demo optimization on synthetic data
+                  ({tableData.length} top combinations displayed).
                 </p>
               </div>
             </>

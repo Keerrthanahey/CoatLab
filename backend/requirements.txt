@@ -54,6 +54,7 @@ zstandard==0.25.0
 fastapi
 uvicorn[standard]
 python-multipart
+python-dotenv
 scikit-learn
 numpy
 pandas

@@ -1,5 +1,5 @@
 import type { AgentChatResponse, ApiClient, CoatingPrediction, OptimizationResult } from "./contract";
-import { magnesium, materials } from "@/lib/mock-data/materials";
+import { materials } from "@/lib/mock-data/materials";
 import { mockPredict, mockSensitivity } from "@/lib/mock-data/prediction";
 import { mockAnalyzeMicrostructure } from "@/lib/mock-data/microstructure";
 import { emptyLiteratureStatus, mockLiteratureQuery } from "@/lib/mock-data/literature";
@@ -21,7 +21,8 @@ export const mockApi: ApiClient = {
     },
     async get(id) {
       await delay(300);
-      if (id === magnesium.id) return magnesium;
+      const found = materials.find((m) => m.id === id);
+      if (found) return found;
       throw new Error(`Material ${id} not found in the demo index.`);
     },
   },
@@ -85,21 +86,47 @@ export const mockApi: ApiClient = {
     async predict(): Promise<CoatingPrediction> {
       await delay(800);
       return {
+        predictions: {
+          corrosion_resistance: 82.5,
+          corrosion_rate: 0.215,
+          coating_thickness: 65.3,
+          porosity: 4.8,
+          pore_size: 12.6,
+          wear_resistance: 78.0,
+        },
+        prediction_status: "success",
+        data_status: "synthetic",
+        demo_status: "DEMO — model trained on synthetic data",
+        model_name: "coatlab-mock-v1",
+        demo: true,
+      };
+    },
+    async optimize(): Promise<OptimizationResult> {
+      await delay(1200);
+      const outputs = {
         corrosion_resistance: 82.5,
         corrosion_rate: 0.215,
         coating_thickness: 65.3,
         porosity: 4.8,
         pore_size: 12.6,
         wear_resistance: 78.0,
-        demo: true,
-        model_id: "coatlab-mock-v1",
       };
-    },
-    async optimize(): Promise<OptimizationResult> {
-      await delay(1200);
+      const combo = {
+        rank: 1,
+        params: { coating_material: "Al2O3", substrate_material: "Magnesium" },
+        predicted_outputs: outputs,
+        score: 0.78,
+        objective_weights: {},
+      };
       return {
         total_evaluated: 0,
-        ranked: [],
+        best_combination: combo,
+        top_10_combinations: [combo],
+        predicted_outputs: outputs,
+        score: 0.78,
+        objective_weights: {},
+        data_status: "synthetic",
+        demo_status: "DEMO OPTIMIZATION — not experimentally validated",
         demo: true,
       };
     },

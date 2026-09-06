@@ -18,32 +18,38 @@ from langchain_core.tools import tool
 
 @tool
 def predict_coating(
-    substrate_material: str = "Mg",
+    substrate_material: str = "Magnesium",
     coating_material: str = "Al2O3",
     reinforcement: str = "none",
     reinforcement_percentage: float = 0.0,
-    particle_size: float = 50.0,
+    particle_size: float = 5.0,
     coating_method: str = "PEO",
+    electrolyte_composition: str = "NaOH",
+    current_voltage_mode: str = "constant_current",
+    ac_dc_mode: str = "DC",
+    current_density: float = 10.0,
     voltage: float = 200.0,
-    current: float = 5.0,
+    frequency: float = 0.0,
+    duty_cycle: float = 50.0,
+    treatment_time: float = 30.0,
     temperature: float = 25.0,
     pressure: float = 1.0,
     spray_distance: float = 100.0,
-    deposition_time: float = 10.0,
-    speed: float = 50.0,
+    speed: float = 10.0,
     num_passes: int = 1,
-    heat_treatment_temp: float = 0.0,
+    heat_treatment_temperature: float = 25.0,
     heat_treatment_time: float = 0.0,
     cooling_method: str = "air",
-    surface_roughness: float = 5.0,
+    surface_roughness: float = 1.0,
     surface_preparation: str = "ground",
     surface_hardness: float = 80.0,
 ) -> str:
     """Predict coating performance (corrosion, wear, thickness, porosity, pore size)
     for a given set of process parameters using the trained ML models.
 
-    Use this when the user asks about predicting coating properties or
-    wants to know what performance to expect for specific process conditions.
+    Substrate/coating materials may be Magnesium, Aluminum, Zirconium, or Tantalum.
+    Includes electrochemical parameters (current_density A/dm2, voltage V, frequency Hz,
+    duty_cycle %, treatment_time min) for PEO / anodizing / electrodeposition.
     """
     params = {
         "substrate_material": substrate_material,
@@ -52,15 +58,20 @@ def predict_coating(
         "reinforcement_percentage": reinforcement_percentage,
         "particle_size": particle_size,
         "coating_method": coating_method,
+        "electrolyte_composition": electrolyte_composition,
+        "current_voltage_mode": current_voltage_mode,
+        "ac_dc_mode": ac_dc_mode,
+        "current_density": current_density,
         "voltage": voltage,
-        "current": current,
+        "frequency": frequency,
+        "duty_cycle": duty_cycle,
+        "treatment_time": treatment_time,
         "temperature": temperature,
         "pressure": pressure,
         "spray_distance": spray_distance,
-        "deposition_time": deposition_time,
         "speed": speed,
         "num_passes": num_passes,
-        "heat_treatment_temp": heat_treatment_temp,
+        "heat_treatment_temperature": heat_treatment_temperature,
         "heat_treatment_time": heat_treatment_time,
         "cooling_method": cooling_method,
         "surface_roughness": surface_roughness,
@@ -78,10 +89,13 @@ def predict_coating(
 
 @tool
 def optimize_coating(
-    coating_materials: str = "Al2O3,SiO2",
-    temperature_values: str = "200,300,400",
-    voltage_values: str = "100,200,300",
-    current_values: str = "3,5,8",
+    substrate_materials: str = "Magnesium",
+    coating_materials: str = "Al2O3,ZrO2",
+    current_densities: str = "5,10,20",
+    voltage_values: str = "150,300,450",
+    duty_cycle_values: str = "30,50,70",
+    treatment_times: str = "15,30,60",
+    current_voltage_mode: str = "constant_current",
     weights_json: str = '{"corrosion_resistance":0.30,"wear_resistance":0.25,"corrosion_rate":0.20,"porosity":0.15,"coating_thickness":0.05,"pore_size":0.05}',
 ) -> str:
     """Find the best coating combinations by running multi-objective optimization.
@@ -90,24 +104,33 @@ def optimize_coating(
     them through the ML models, and ranks them by a weighted score.
 
     Args:
-        coating_materials: Comma-separated coating materials (e.g. "Al2O3,SiO2")
-        temperature_values: Comma-separated temperature values in °C
+        substrate_materials: Comma-separated substrate materials
+            (Magnesium, Aluminum, Zirconium, Tantalum)
+        coating_materials: Comma-separated coating materials
+        current_densities: Comma-separated current densities in A/dm2
         voltage_values: Comma-separated voltage values in V
-        current_values: Comma-separated current values in A
-        weights_json: JSON string of objective weights (must sum to 1.0)
+        duty_cycle_values: Comma-separated duty cycle values in %
+        treatment_times: Comma-separated treatment times in min
+        current_voltage_mode: "constant_current" or "constant_voltage"
+        weights_json: JSON string of objective weights
     """
     try:
+        subs = [s.strip() for s in substrate_materials.split(",") if s.strip()]
         materials = [m.strip() for m in coating_materials.split(",") if m.strip()]
-        temps = [float(t.strip()) for t in temperature_values.split(",") if t.strip()]
+        cds = [float(x.strip()) for x in current_densities.split(",") if x.strip()]
         volts = [float(v.strip()) for v in voltage_values.split(",") if v.strip()]
-        amps = [float(a.strip()) for a in current_values.split(",") if a.strip()]
+        duties = [float(d.strip()) for d in duty_cycle_values.split(",") if d.strip()]
+        times = [float(t.strip()) for t in treatment_times.split(",") if t.strip()]
         weights = json.loads(weights_json) if weights_json else {}
 
         ranges = {
             "coating_material": materials,
-            "temperature": temps,
+            "substrate_material": subs,
+            "current_density": cds,
             "voltage": volts,
-            "current": amps,
+            "duty_cycle": duties,
+            "treatment_time": times,
+            "current_voltage_mode": [current_voltage_mode],
         }
 
         from app.ml.optimize import generate_combinations, optimize
@@ -122,16 +145,18 @@ def optimize_coating(
             "top_combinations": [
                 {
                     "rank": r["rank"],
+                    "substrate_material": r.get("substrate_material", ""),
                     "coating_material": r.get("coating_material", ""),
-                    "temperature": r.get("temperature", 0),
+                    "current_density": r.get("current_density", 0),
                     "voltage": r.get("voltage", 0),
-                    "current": r.get("current", 0),
-                    "corrosion_resistance": r.get("corrosion_resistance", 0),
-                    "wear_resistance": r.get("wear_resistance", 0),
-                    "corrosion_rate": r.get("corrosion_rate", 0),
-                    "porosity": r.get("porosity", 0),
-                    "coating_thickness": r.get("coating_thickness", 0),
-                    "pore_size": r.get("pore_size", 0),
+                    "duty_cycle": r.get("duty_cycle", 0),
+                    "treatment_time": r.get("treatment_time", 0),
+                    "corrosion_resistance": r.get("pred_corrosion_resistance", 0),
+                    "wear_resistance": r.get("pred_wear_resistance", 0),
+                    "corrosion_rate": r.get("pred_corrosion_rate", 0),
+                    "porosity": r.get("pred_porosity", 0),
+                    "coating_thickness": r.get("pred_coating_thickness", 0),
+                    "pore_size": r.get("pred_pore_size", 0),
                     "overall_score": r.get("overall_score", 0),
                 }
                 for r in top

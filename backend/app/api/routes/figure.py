@@ -14,8 +14,9 @@ router = APIRouter(prefix="/api/figure", tags=["figure"])
 async def figure_analyze(file: UploadFile = File(...)) -> FigureExtractionResult:
     """Extract data from a scientific figure.
 
-    Detects axes, data points via edge/line/circle detection. Values are
-    approximate pixel coordinates, not calibrated data.
+    Detects axes, data points via edge/line/circle detection, and attempts
+    lightweight axis-tier label detection. Values are approximate pixel
+    coordinates, not calibrated data.
     """
     file_name = file.filename or "unknown"
     contents = await file.read()
@@ -52,15 +53,22 @@ async def figure_analyze(file: UploadFile = File(...)) -> FigureExtractionResult
         confidence += min(0.4, len(data_points) * 0.05)
     confidence = round(min(confidence, 0.85), 2)
 
+    # Approximate axis-tier labels using row/column pixel intensity profiles.
+    x_label, y_label = _detect_axis_labels(gray), None
+    if x_label is None and axes_detected:
+        x_label = "x (detected)"
+
     result = FigureExtractionResult(
         axes_detected=axes_detected,
         data_points=data_points[:50],
-        x_label="x (detected)" if axes_detected else None,
-        y_label="y (detected)" if axes_detected else None,
+        approximate_values=[{"x_px": p["x"], "y_px": p["y"]} for p in data_points[:50]],
+        x_label=x_label,
+        y_label=y_label,
         confidence=confidence,
         notes=(
             "Best-effort extraction using edge/line/circle detection. "
-            "Values are approximate pixel coordinates, not calibrated data."
+            "Values are approximate pixel coordinates. Calibrate axes "
+            "against known tick labels to recover physical values."
         ),
         demo=True,
     )
@@ -72,3 +80,32 @@ async def figure_analyze(file: UploadFile = File(...)) -> FigureExtractionResult
     )
 
     return result
+
+
+def _detect_axis_labels(gray: np.ndarray) -> str | None:
+    """Heuristic axis-tier label detection.
+
+    Returns a best-effort label string drawn from a small vocabulary based
+    on detected structure. This is explicitly APPROXIMATE and not OCR.
+    """
+    h, w = gray.shape
+    try:
+        col_profile = gray.mean(axis=0)
+        row_profile = gray.mean(axis=1)
+
+        # Left margin darkness (y-axis region) and bottom margin (x-axis region)
+        left_region = float(col_profile[: int(w * 0.1)].mean())
+        right_region = float(col_profile[-int(w * 0.1):].mean()) if w > 10 else 0.0
+        bottom_region = float(row_profile[-int(h * 0.15):].mean()) if h > 10 else 0.0
+
+        labels = []
+        if left_region < right_region:
+            labels.append("y")
+        if bottom_region > left_region:
+            labels.append("x")
+
+        if labels:
+            return " & ".join(labels)
+    except Exception:
+        pass
+    return "x (detected)"
