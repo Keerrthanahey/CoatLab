@@ -15,6 +15,8 @@ import {
   Server,
   Radio,
   Ruler,
+  SlidersHorizontal,
+  BarChart3,
 } from "lucide-react";
 import { ParticleCanvas } from "@/components/interactive/particle-canvas";
 import { Crystal3D } from "@/components/interactive/crystal-3d";
@@ -23,6 +25,7 @@ import { TiltCard } from "@/components/interactive/tilt-card";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader } from "@/components/ui/card";
 import { API_ENDPOINTS } from "@/lib/api/client";
+import { useAuth } from "@/components/auth/auth-provider";
 
 const quickActions = [
   {
@@ -52,6 +55,34 @@ const quickActions = [
     title: "Literature Intelligence",
     description: "Ask questions about the indexed research literature.",
     accent: "#f59e0b",
+  },
+  {
+    href: "/ml/prediction",
+    icon: BrainCircuit,
+    title: "ML Prediction",
+    description: "Predict 6 coating performance targets from process parameters.",
+    accent: "#14b8a6",
+  },
+  {
+    href: "/ml/optimization",
+    icon: SlidersHorizontal,
+    title: "Optimizer",
+    description: "Multi-objective search for the ideal parameter combination.",
+    accent: "#8b5cf6",
+  },
+  {
+    href: "/ml/morphology",
+    icon: ScanLine,
+    title: "Morphology",
+    description: "Image-based pore analysis from SEM micrographs.",
+    accent: "#3b82f6",
+  },
+  {
+    href: "/ml/figure",
+    icon: BarChart3,
+    title: "Figure Extract",
+    description: "Recover approximate data from published charts and plots.",
+    accent: "#ec4899",
   },
 ];
 
@@ -88,6 +119,9 @@ const endpointStatuses = [
 ];
 
 export default function DashboardPage() {
+  const { user } = useAuth();
+  const firstName = user?.fullName?.split(/\s+/)[0] ?? "Researcher";
+
   return (
     <div className="min-h-full">
       {/* Hero */}
@@ -108,6 +142,10 @@ export default function DashboardPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
+            <p className="mb-4 font-mono text-xs text-slate-500">
+              Welcome back,{" "}
+              <span className="text-teal-400">{firstName}</span>
+            </p>
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-teal-500/25 bg-teal-500/5 px-3 py-1 font-mono text-xs text-teal-400">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-teal-400" />
               Mg Coating Analysis Platform

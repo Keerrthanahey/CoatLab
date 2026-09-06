@@ -4,7 +4,8 @@ import { useMemo, useRef, useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { allNavItems, getNavItem } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-import { Menu, Search, Bell, ChevronDown, CornerDownLeft, X } from "lucide-react";
+import { useAuth } from "@/components/auth/auth-provider";
+import { Menu, Search, Bell, ChevronDown, CornerDownLeft, X, LogOut } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 export function Topbar({
@@ -17,7 +18,10 @@ export function Topbar({
   const pathname = usePathname();
   const router = useRouter();
   const current = getNavItem(pathname);
+  const { user, logout } = useAuth();
 
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
@@ -44,6 +48,16 @@ export function Topbar({
       mobileSearchInputRef.current?.focus();
     }
   }, [mobileSearchOpen]);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
 
   useEffect(() => {
     if (!mobileSearchOpen) return;
@@ -84,6 +98,14 @@ export function Topbar({
     setQuery("");
     setMobileSearchOpen(false);
   };
+
+  const initials = (() => {
+    if (!user?.fullName) return "?";
+    const parts = user.fullName.trim().split(/\s+/);
+    const first = parts[0]?.[0] ?? "";
+    const last = parts.length > 1 ? parts[parts.length - 1][0] ?? "" : "";
+    return (first + last).toUpperCase() || "?";
+  })();
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
@@ -237,18 +259,58 @@ export function Topbar({
       </div>
 
       {/* User menu */}
-      <button aria-label="User menu" className="group flex items-center gap-2.5 rounded-lg border border-transparent py-1 pl-1 pr-2 hover:border-white/10 hover:bg-white/[0.04] focus-visible:ring-2 focus-visible:ring-teal-500/50 focus-visible:outline-none">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-blue-600 text-xs font-semibold text-white">
-          AR
-        </span>
-        <span className="hidden text-left leading-tight sm:block">
-          <span className="block text-[13px] font-medium text-slate-100">
-            A. Researcher
+      <div ref={userMenuRef} className="relative">
+        <button
+          aria-label="User menu"
+          aria-expanded={userMenuOpen}
+          onClick={() => setUserMenuOpen((o) => !o)}
+          className="group flex items-center gap-2.5 rounded-lg border border-transparent py-1 pl-1 pr-2 hover:border-white/10 hover:bg-white/[0.04] focus-visible:ring-2 focus-visible:ring-teal-500/50 focus-visible:outline-none"
+        >
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-blue-600 text-xs font-semibold text-white">
+            {user ? initials : "?"}
           </span>
-          <span className="block text-[11px] text-slate-500">Research lead</span>
-        </span>
-        <ChevronDown className="hidden h-4 w-4 text-slate-500 group-hover:text-slate-300 sm:block" />
-      </button>
+          <span className="hidden text-left leading-tight sm:block">
+            <span className="block text-[13px] font-medium text-slate-100">
+              {user?.fullName ?? "Guest"}
+            </span>
+            <span className="block text-[11px] text-slate-500">
+              {user?.domain ?? "Researcher"}
+            </span>
+          </span>
+          <ChevronDown className="hidden h-4 w-4 text-slate-500 group-hover:text-slate-300 sm:block" />
+        </button>
+
+        <AnimatePresence>
+          {userMenuOpen && user && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.12 }}
+              className="absolute right-0 top-12 w-56 overflow-hidden rounded-xl border border-white/10 bg-[#0d1830] shadow-2xl shadow-black/40"
+            >
+              <div className="border-b border-white/[0.06] px-3.5 py-3">
+                <p className="truncate text-[13px] font-medium text-slate-100">
+                  {user.fullName}
+                </p>
+                <p className="truncate text-[11px] text-slate-500">{user.email}</p>
+              </div>
+              <div className="p-1.5">
+                <button
+                  onClick={() => {
+                    setUserMenuOpen(false);
+                    logout();
+                  }}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] font-medium text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-red-400 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-500/50 focus-visible:outline-none"
+                >
+                  <LogOut className="h-4 w-4 text-slate-400" />
+                  Sign out
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* Mobile search overlay */}
       <AnimatePresence>

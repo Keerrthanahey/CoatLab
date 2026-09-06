@@ -29,7 +29,7 @@ export const navSections: NavSection[] = [
     label: "Overview",
     items: [
       {
-        href: "/",
+        href: "/dashboard",
         label: "Dashboard",
         description: "Research state overview",
         icon: LayoutDashboard,

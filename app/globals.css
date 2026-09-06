@@ -132,3 +132,67 @@ body {
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
 }
+
+/* ------------------------ Custom cursor system ------------------------ */
+
+/* Hide the native cursor only when the glow system is active on fine pointers */
+.cursor-fx {
+  display: none;
+}
+
+html.cursor-glow-active .cursor-fx {
+  display: block;
+}
+
+html.cursor-glow-active,
+html.cursor-glow-active body,
+html.cursor-glow-active * {
+  cursor: none !important;
+}
+
+/* Ambient glow that trails the pointer */
+.mouse-glow {
+  background: radial-gradient(
+    circle,
+    rgba(20, 184, 166, 0.09) 0%,
+    rgba(20, 184, 166, 0.045) 40%,
+    transparent 70%
+  );
+  will-change: transform;
+}
+
+/* Glowing orb cursor */
+.cursor-orb {
+  background: #2dd4bf;
+  box-shadow:
+    0 0 12px 2px rgba(45, 212, 191, 0.55),
+    0 0 32px 6px rgba(45, 212, 191, 0.25);
+}
+
+.cursor-halo {
+  border-radius: 9999px;
+}
+
+/* Click ripple */
+.cursor-ripple {
+  position: fixed;
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  border: 1px solid rgba(45, 212, 191, 0.5);
+  transform: translate(-50%, -50%) scale(0.3);
+  animation: cursor-ripple-anim 0.7s ease-out forwards;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+@keyframes cursor-ripple-anim {
+  0% {
+    transform: translate(-50%, -50%) scale(0.3);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2.6);
+    opacity: 0;
+  }
+}

@@ -114,7 +114,7 @@ export function Sidebar({
           collapsed && "justify-center px-2",
         )}
       >
-        <Link href="/" className={cn("flex items-center gap-3", collapsed && "gap-0")}>
+        <Link href="/dashboard" className={cn("flex items-center gap-3", collapsed && "gap-0")}>
           <Logo className="h-9 w-9 shrink-0" />
           {!collapsed && (
             <span className="flex flex-col leading-none">
