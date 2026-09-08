@@ -5,6 +5,7 @@ import { mockAnalyzeMicrostructure } from "@/lib/mock-data/microstructure";
 import { emptyLiteratureStatus, mockLiteratureQuery } from "@/lib/mock-data/literature";
 import { emptyDatasetSummary, generateSampleRows } from "@/lib/mock-data/dataset";
 import { emptyMetrics, modelStatus } from "@/lib/mock-data/model";
+import { mockMLModelInfo } from "@/lib/mock-data/model-metrics";
 import type { DatasetRecord } from "@/lib/types";
 
 const delay = (ms = 450) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -132,7 +133,7 @@ export const mockApi: ApiClient = {
     },
     async modelInfo() {
       await delay(200);
-      return { trained: false, demo: true };
+      return mockMLModelInfo;
     },
   },
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   Settings as SettingsIcon,
   Server,
@@ -9,6 +10,9 @@ import {
   Save,
   Check,
   ExternalLink,
+  UserRound,
+  LogOut,
+  Loader2,
 } from "lucide-react";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Card, CardHeader } from "@/components/ui/card";
@@ -16,6 +20,7 @@ import { Field, TextInput } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { API_ENDPOINTS } from "@/lib/api/client";
+import { useAuth } from "@/components/auth/auth-provider";
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -36,10 +41,12 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 }
 
 export default function SettingsPage() {
+  const { user, loading, logout } = useAuth();
   const [projectName, setProjectName] = useState("CoatLab");
   const [apiUrl, setApiUrl] = useState("");
   const [mpKey, setMpKey] = useState("");
   const [saved, setSaved] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const [toggles, setToggles] = useState({
     telemetry: false,
     experimentalViewer: false,
@@ -51,6 +58,11 @@ export default function SettingsPage() {
     setTimeout(() => setSaved(false), 2200);
   };
 
+  const onSignOut = async () => {
+    setSigningOut(true);
+    await logout();
+  };
+
   return (
     <div className="space-y-6">
       <SectionHeader
@@ -58,6 +70,55 @@ export default function SettingsPage() {
         title="Settings"
         description="Workspace preferences and backend connection details for the CoatLab platform."
       />
+
+      <Card>
+        <CardHeader
+          title="Account"
+          subtitle="Your signed-in identity and session controls."
+          icon={<UserRound className="h-4 w-4" />}
+        />
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="min-w-0">
+            {loading ? (
+              <p className="flex items-center gap-2 text-sm text-slate-400">
+                <Loader2 className="h-4 w-4 animate-spin text-teal-400" />
+                Checking session…
+              </p>
+            ) : user ? (
+              <>
+                <p className="truncate text-sm font-semibold text-white">{user.fullName}</p>
+                <p className="truncate text-xs text-slate-400">{user.email}</p>
+              </>
+            ) : (
+              <p className="text-sm text-slate-400">
+                You are signed out.{" "}
+                <Link href="/login" className="font-medium text-teal-400 hover:text-teal-300">
+                  Sign in
+                </Link>
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/profile"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-white/15 px-4 text-sm font-medium text-slate-200 transition-colors hover:bg-white/[0.05] hover:border-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/50"
+            >
+              <UserRound className="h-4 w-4" />
+              Profile
+            </Link>
+            <Button
+              variant="danger"
+              size="md"
+              onClick={onSignOut}
+              loading={signingOut}
+              disabled={signingOut || !user}
+            >
+              <LogOut className="h-4 w-4" />
+              {signingOut ? "Signing out…" : "Sign Out"}
+            </Button>
+          </div>
+        </div>
+      </Card>
 
       <div className="grid items-start gap-5 lg:grid-cols-2">
         <div className="space-y-5">

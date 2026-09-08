@@ -43,6 +43,29 @@ function PasswordField({
   );
 }
 
+function GoogleIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <path
+        fill="#4285F4"
+        d="M23.52 12.27c0-.85-.08-1.66-.22-2.45H12v4.64h6.46a5.53 5.53 0 0 1-2.4 3.63v3h3.88c2.27-2.1 3.58-5.18 3.58-8.82Z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.88-3c-1.08.72-2.45 1.15-4.06 1.15-3.12 0-5.76-2.1-6.7-4.94H1.28v3.1A11.99 11.99 0 0 0 12 24Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.3 14.3a7.2 7.2 0 0 1 0-4.6V6.6H1.28a12 12 0 0 0 0 10.8l4.02-3.1Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 4.76c1.76 0 3.34.6 4.58 1.79l3.44-3.44C17.95 1.19 15.24 0 12 0A11.99 11.99 0 0 0 1.28 6.6l4.02 3.1C6.24 6.86 8.88 4.76 12 4.76Z"
+      />
+    </svg>
+  );
+}
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -53,6 +76,13 @@ function LoginForm() {
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const googleNotice = searchParams.get("google");
+  const nextParam = searchParams.get("next");
+  const googleHref =
+    nextParam && nextParam.startsWith("/")
+      ? `/api/auth/google?next=${encodeURIComponent(nextParam)}`
+      : "/api/auth/google";
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -111,6 +141,13 @@ function LoginForm() {
           </p>
 
           <form onSubmit={onSubmit} className="mt-7 space-y-4" noValidate>
+            {(googleNotice === "not_configured" || googleNotice === "error") && (
+              <p className="rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-400">
+                {googleNotice === "not_configured"
+                  ? "Google Sign-In isn't configured for this deployment yet. Use email and password to sign in."
+                  : "Google Sign-In could not be completed. Please try again or use email and password."}
+              </p>
+            )}
             <div>
               <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-slate-400">
                 Email
@@ -166,6 +203,24 @@ function LoginForm() {
               {submitting ? "Signing in…" : "Sign In"}
             </button>
           </form>
+
+          <div className="mt-6">
+            <div className="flex items-center gap-3">
+              <span className="h-px flex-1 bg-white/[0.08]" />
+              <span className="text-[11px] uppercase tracking-widest text-slate-500">
+                or continue with
+              </span>
+              <span className="h-px flex-1 bg-white/[0.08]" />
+            </div>
+            <a
+              href={googleHref}
+              aria-label="Continue with Google"
+              className="mt-4 flex h-11 w-full items-center justify-center gap-2.5 rounded-xl border border-white/[0.1] bg-white/[0.03] px-4 text-sm font-medium text-white transition-colors hover:bg-white/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500/40"
+            >
+              <GoogleIcon className="h-4 w-4" />
+              Continue with Google
+            </a>
+          </div>
 
           <p className="mt-6 text-center text-sm text-slate-400">
             New to CoatLab?{" "}

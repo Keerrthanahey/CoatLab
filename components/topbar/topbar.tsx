@@ -1,12 +1,24 @@
 "use client";
 
 import { useMemo, useRef, useState, useEffect } from "react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { allNavItems, getNavItem } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/auth/auth-provider";
-import { Menu, Search, Bell, ChevronDown, CornerDownLeft, X, LogOut } from "lucide-react";
+import {
+  Menu,
+  Search,
+  Bell,
+  ChevronDown,
+  CornerDownLeft,
+  X,
+  LogOut,
+  UserRound,
+  Settings,
+} from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useNotifications } from "@/lib/notifications/store";
 
 export function Topbar({
   onOpenMobile,
@@ -18,7 +30,8 @@ export function Topbar({
   const pathname = usePathname();
   const router = useRouter();
   const current = getNavItem(pathname);
-  const { user, logout } = useAuth();
+  const { user, loading, logout } = useAuth();
+  const { unreadCount } = useNotifications();
 
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -248,15 +261,20 @@ export function Topbar({
       </button>
 
       {/* Notifications */}
-      <div className="relative">
-        <button
-          className="flex h-9.5 w-9.5 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-400 hover:bg-white/[0.08] focus-visible:ring-2 focus-visible:ring-teal-500/50 focus-visible:outline-none"
-          aria-label="Notifications"
-        >
-          <Bell className="h-4.5 w-4.5" />
-          <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-teal-400 ring-2 ring-[#060b18]" />
-        </button>
-      </div>
+      <Link
+        href="/notifications"
+        className="relative flex h-9.5 w-9.5 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-400 transition-colors hover:bg-white/[0.08] hover:text-slate-200 focus-visible:ring-2 focus-visible:ring-teal-500/50 focus-visible:outline-none"
+        aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : "Notifications"}
+      >
+        <Bell className="h-4.5 w-4.5" />
+        {unreadCount > 0 ? (
+          <span className="absolute -right-1 -top-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-teal-500 px-1 text-[10px] font-bold leading-4 text-black ring-2 ring-[#060b18]">
+            {unreadCount > 9 ? "9+" : unreadCount}
+          </span>
+        ) : (
+          <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-teal-400/60 ring-2 ring-[#060b18]" />
+        )}
+      </Link>
 
       {/* User menu */}
       <div ref={userMenuRef} className="relative">
@@ -267,14 +285,14 @@ export function Topbar({
           className="group flex items-center gap-2.5 rounded-lg border border-transparent py-1 pl-1 pr-2 hover:border-white/10 hover:bg-white/[0.04] focus-visible:ring-2 focus-visible:ring-teal-500/50 focus-visible:outline-none"
         >
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-blue-600 text-xs font-semibold text-white">
-            {user ? initials : "?"}
+            {user ? initials : loading ? "…" : "?"}
           </span>
           <span className="hidden text-left leading-tight sm:block">
             <span className="block text-[13px] font-medium text-slate-100">
-              {user?.fullName ?? "Guest"}
+              {user?.fullName ?? (loading ? "Loading…" : "Guest")}
             </span>
             <span className="block text-[11px] text-slate-500">
-              {user?.domain ?? "Researcher"}
+              {user?.domain ?? (loading ? "" : "Researcher")}
             </span>
           </span>
           <ChevronDown className="hidden h-4 w-4 text-slate-500 group-hover:text-slate-300 sm:block" />
@@ -296,6 +314,42 @@ export function Topbar({
                 <p className="truncate text-[11px] text-slate-500">{user.email}</p>
               </div>
               <div className="p-1.5">
+                <button
+                  onClick={() => {
+                    setUserMenuOpen(false);
+                    router.push("/profile");
+                  }}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] font-medium text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-slate-100 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-500/50 focus-visible:outline-none"
+                >
+                  <UserRound className="h-4 w-4 text-slate-400" />
+                  Profile
+                </button>
+                <button
+                  onClick={() => {
+                    setUserMenuOpen(false);
+                    router.push("/notifications");
+                  }}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] font-medium text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-slate-100 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-500/50 focus-visible:outline-none"
+                >
+                  <Bell className="h-4 w-4 text-slate-400" />
+                  Notifications
+                  {unreadCount > 0 && (
+                    <span className="ml-auto rounded-full bg-teal-500/20 px-1.5 py-0.5 text-[10px] font-bold text-teal-300">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    setUserMenuOpen(false);
+                    router.push("/settings");
+                  }}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] font-medium text-slate-300 transition-colors hover:bg-white/[0.05] hover:text-slate-100 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal-500/50 focus-visible:outline-none"
+                >
+                  <Settings className="h-4 w-4 text-slate-400" />
+                  Settings
+                </button>
+                <div className="my-1 border-t border-white/[0.06]" />
                 <button
                   onClick={() => {
                     setUserMenuOpen(false);

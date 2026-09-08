@@ -249,3 +249,23 @@ export interface ModelMetrics {
   rmse: number | null;
   mape: number | null;
 }
+
+/** Per-target metrics emitted by the XGBoost coating-property models. */
+export interface MLTargetMetrics extends ModelMetrics {
+  selected_model: string;
+}
+
+export interface MLModelInfo {
+  trained: boolean;
+  trainedAt: string | null;
+  datasetRows: number;
+  trainRows?: number;
+  testRows?: number;
+  featureCount: number;
+  targetCount: number;
+  supportedSubstrates: string[];
+  supportedCoatings: string[];
+  metrics: Record<string, MLTargetMetrics>;
+  dataStatus: string;
+  demo: boolean;
+}

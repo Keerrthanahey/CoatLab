@@ -9,13 +9,23 @@ import { join } from "node:path";
  * never imported from client components.
  */
 
+export type AuthProvider = "email" | "google";
+
 export interface StoredUser {
   id: string;
   fullName: string;
   email: string;
   /** Optional research domain captured at signup. */
   domain?: string;
-  passwordHash: string;
+  /**
+   * scrypt hash for email/password accounts. Absent for users who signed in
+   * via Google (they have no locally stored password).
+   */
+  passwordHash?: string;
+  /** How the account was created / last signed in with. */
+  provider: AuthProvider;
+  /** Profile image when provided by the identity provider. */
+  avatarUrl?: string;
   createdAt: string;
 }
 
@@ -64,11 +74,34 @@ export function getUserById(id: string): StoredUser | null {
   return (users[id] as StoredUser) || null;
 }
 
+/** Shape of the user object returned to the client by auth endpoints. */
+export interface PublicUser {
+  id: string;
+  fullName: string;
+  email: string;
+  domain: string | null;
+  provider: string;
+  avatarUrl: string | null;
+}
+
+export function toPublicUser(user: StoredUser): PublicUser {
+  return {
+    id: user.id,
+    fullName: user.fullName,
+    email: user.email,
+    domain: user.domain ?? null,
+    provider: user.provider ?? "email",
+    avatarUrl: user.avatarUrl ?? null,
+  };
+}
+
 export function createUser(data: {
   fullName: string;
   email: string;
-  passwordHash: string;
+  passwordHash?: string;
   domain?: string;
+  provider?: AuthProvider;
+  avatarUrl?: string;
 }): StoredUser {
   const users = readUsers();
   const id = crypto.randomUUID();
@@ -78,11 +111,56 @@ export function createUser(data: {
     email: data.email,
     domain: data.domain,
     passwordHash: data.passwordHash,
+    provider: data.provider ?? "email",
+    avatarUrl: data.avatarUrl,
     createdAt: new Date().toISOString(),
   };
   users[id] = user;
   writeUsers(users);
   return user;
+}
+
+/**
+ * Update the mutable profile fields of an existing user. Returning the fresh
+ * record lets callers echo the changes back without a second read.
+ */
+/**
+ * Attach Google identity details to an existing account found by email.
+ * Keeps any existing password (the account can still use email login) but
+ * fills in the avatar and, if the account has no identity provider yet,
+ * marks it as a Google-backed account.
+ */
+export function attachGoogleIdentity(
+  id: string,
+  data: { name: string; avatarUrl?: string },
+): StoredUser | null {
+  const users = readUsers();
+  const user = users[id] as UserRecord | undefined;
+  if (!user) return null;
+  if (data.avatarUrl) user.avatarUrl = data.avatarUrl;
+  if (!user.fullName && data.name) user.fullName = data.name;
+  if (!user.provider) user.provider = "google";
+  writeUsers(users);
+  return user as StoredUser;
+}
+
+export function updateUserProfile(
+  id: string,
+  data: { fullName: string; domain?: string },
+): StoredUser | null {
+  const users = readUsers();
+  const user = users[id] as UserRecord | undefined;
+  if (!user) return null;
+  user.fullName = data.fullName.trim();
+  if (data.domain === undefined) {
+    delete user.domain;
+  } else {
+    const domain = data.domain.trim();
+    if (domain) user.domain = domain;
+    else delete user.domain;
+  }
+  writeUsers(users);
+  return user as StoredUser;
 }
 
 export function emailExists(email: string): boolean {

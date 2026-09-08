@@ -6,6 +6,7 @@ import {
   createUser,
   emailExists,
   hashPassword,
+  toPublicUser,
 } from "@/lib/auth";
 
 export const runtime = "nodejs";
@@ -67,14 +68,7 @@ export async function POST(request: Request) {
   });
 
   const response = NextResponse.json(
-    {
-      user: {
-        id: user.id,
-        fullName: user.fullName,
-        email: user.email,
-        domain: user.domain ?? null,
-      },
-    },
+    { user: toPublicUser(user) },
     { status: 201 },
   );
 

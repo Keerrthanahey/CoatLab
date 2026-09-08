@@ -1,9 +1,10 @@
-"""Training entry point — compares RF vs GradientBoosting per target.
+"""Training entry point — compares XGBoost vs RF vs GradientBoosting.
 
 Loads the synthetic dataset (via the data loader), fits the preprocessor,
-trains both RandomForestRegressor and GradientBoostingRegressor for each
-of the 6 coating-property targets, evaluates on a held-out 20% test split,
-and selects the best model per target by R².
+trains XGBoost (primary), GradientBoostingRegressor, and
+RandomForestRegressor for each of the 6 coating-property targets,
+evaluates on a held-out 20% test split, and selects the best model per
+target by R².
 
 Artifacts saved to ``app/ml/models/``:
   - preprocessor.joblib
@@ -79,8 +80,8 @@ def main(dataset_path: Path | str = DATA_PATH) -> None:
         "demo": True,
         "note": (
             "Metrics computed on SYNTHETIC data; not real experimental performance. "
-            "Both RandomForest and GradientBoosting were compared; the best model "
-            "per target (by R²) is reported in 'selected_model'."
+            "XGBoost (primary), RandomForest and GradientBoosting were compared; "
+            "the best model per target (by R²) is reported in 'selected_model'."
         ),
         "trained_at": datetime.now(timezone.utc).isoformat(),
         "dataset_rows": int(len(df)),

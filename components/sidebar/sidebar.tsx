@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 import { navSections } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/ui/logo";
-import { PanelLeftClose, PanelLeft, FlaskConical, X } from "lucide-react";
+import { ConnectionStatus } from "@/components/ui/connection-status";
+import { PanelLeftClose, PanelLeft, X } from "lucide-react";
 import { useRef, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -194,24 +195,7 @@ export function Sidebar({
           collapsed && "px-2",
         )}
       >
-        <div
-          className={cn(
-            "flex items-center gap-2.5 rounded-lg border border-amber-500/20 bg-amber-500/[0.07] px-3 py-2.5",
-            collapsed && "justify-center px-2",
-          )}
-        >
-          <FlaskConical className="h-4 w-4 shrink-0 text-amber-400" />
-          {!collapsed && (
-            <span className="flex min-w-0 flex-col">
-              <span className="text-[11px] font-medium leading-tight text-amber-300">
-                Mock mode
-              </span>
-              <span className="truncate text-[10px] leading-tight text-amber-400/70">
-                API backend not connected
-              </span>
-            </span>
-          )}
-        </div>
+        <ConnectionStatus collapsed={collapsed} />
       </div>
     </nav>
   );

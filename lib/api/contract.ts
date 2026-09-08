@@ -5,6 +5,7 @@ import type {
   LiteratureStatus,
   Material,
   MicrostructureResult,
+  MLModelInfo,
   ModelMetrics,
   ModelStatus,
   PredictionInput,
@@ -131,7 +132,7 @@ export interface ApiClient {
   ml: {
     predict(input: CoatingInput): Promise<CoatingPrediction>;
     optimize(request: OptimizationRequest): Promise<OptimizationResult>;
-    modelInfo(): Promise<Record<string, unknown>>;
+    modelInfo(): Promise<MLModelInfo>;
   };
   agent: {
     chat(message: string): Promise<AgentChatResponse>;

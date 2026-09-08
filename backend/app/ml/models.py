@@ -1,8 +1,9 @@
 """Model manager for coating property regression.
 
 Manages one best-estimator model per coating property target. During
-training, both RandomForestRegressor and GradientBoostingRegressor are
-evaluated and the one with higher R² is selected for each target.
+training, XGBoost (the primary model family), GradientBoostingRegressor,
+and RandomForestRegressor are evaluated and the one with higher R² on a
+held-out validation set is selected for each target.
 
 All models operate on preprocessed feature matrices (output of
 ``CoatingPreprocessor``). Artifacts are persisted via joblib.
@@ -26,6 +27,26 @@ from sklearn.metrics import (
 
 from app.ml.features import TARGETS
 
+try:  # XGBoost is the primary model family; degrade gracefully if absent.
+    from xgboost import XGBRegressor
+except ImportError:  # pragma: no cover
+    XGBRegressor = None
+
+XGB_PARAMS: dict = {
+    "n_estimators": 300,
+    "max_depth": 5,
+    "learning_rate": 0.08,
+    "subsample": 0.9,
+    "colsample_bytree": 0.8,
+    "min_child_weight": 2,
+    "reg_alpha": 0.1,
+    "reg_lambda": 1.0,
+    "random_state": 42,
+    "n_jobs": -1,
+    "tree_method": "hist",
+    "verbosity": 0,
+}
+
 RF_PARAMS: dict = {
     "n_estimators": 300,
     "max_depth": None,
@@ -42,13 +63,15 @@ GB_PARAMS: dict = {
     "random_state": 42,
 }
 
-CANDIDATE_MODELS: dict[str, type] = {
-    "RandomForestRegressor": RandomForestRegressor,
+CANDIDATE_MODELS: dict[str, type | None] = {
+    "XGBRegressor": XGBRegressor,
     "GradientBoostingRegressor": GradientBoostingRegressor,
+    "RandomForestRegressor": RandomForestRegressor,
 }
 CANDIDATE_PARAMS: dict[str, dict] = {
-    "RandomForestRegressor": RF_PARAMS,
+    "XGBRegressor": XGB_PARAMS,
     "GradientBoostingRegressor": GB_PARAMS,
+    "RandomForestRegressor": RF_PARAMS,
 }
 
 
@@ -89,6 +112,8 @@ class CoatingModelManager:
             best_name = ""
 
             for name, model_class in CANDIDATE_MODELS.items():
+                if model_class is None:
+                    continue
                 params = CANDIDATE_PARAMS[name]
                 model = model_class(**params)
                 model.fit(X_train, y_train)

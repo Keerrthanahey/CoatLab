@@ -4,6 +4,7 @@ import {
   SESSION_TTL_SECONDS,
   createSessionToken,
   getUserByEmail,
+  toPublicUser,
   verifyPassword,
 } from "@/lib/auth";
 
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
   }
 
   const user = getUserByEmail(email);
-  if (!user || !verifyPassword(password, user.passwordHash)) {
+  if (!user?.passwordHash || !verifyPassword(password, user.passwordHash)) {
     return NextResponse.json(
       { error: "Invalid email or password." },
       { status: 401 },
@@ -47,14 +48,7 @@ export async function POST(request: Request) {
     email: user.email,
   });
 
-  const response = NextResponse.json({
-    user: {
-      id: user.id,
-      fullName: user.fullName,
-      email: user.email,
-      domain: user.domain ?? null,
-    },
-  });
+  const response = NextResponse.json({ user: toPublicUser(user) });
 
   response.cookies.set({
     name: SESSION_COOKIE,

@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { SESSION_COOKIE, getUserById, verifySessionToken } from "@/lib/auth";
+import {
+  SESSION_COOKIE,
+  getUserById,
+  toPublicUser,
+  verifySessionToken,
+} from "@/lib/auth";
 
 export const runtime = "nodejs";
 
@@ -22,12 +27,5 @@ export async function GET(request: Request) {
     return NextResponse.json({ user: null }, { status: 200 });
   }
 
-  return NextResponse.json({
-    user: {
-      id: user.id,
-      fullName: user.fullName,
-      email: user.email,
-      domain: user.domain ?? null,
-    },
-  });
+  return NextResponse.json({ user: toPublicUser(user) });
 }

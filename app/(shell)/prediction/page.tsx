@@ -11,8 +11,10 @@ import {
   type FormValues,
 } from "@/components/prediction/parameter-form";
 import { PredictionResults } from "@/components/prediction/prediction-results";
+import { notify } from "@/lib/notifications/store";
 
 const defaultValues: FormValues = {
+  material: "mp-153",
   electrolyte: "Na2SiO3",
   concentration: "0.5",
   currentDensity: "3.0",
@@ -52,6 +54,11 @@ export default function PredictionPage() {
       const data = await api.predict(input);
       setResult(data);
       setStatus("success");
+      notify({
+        title: "Prediction completed",
+        message: `Coating property prediction ran with ${input.materialId} at ${input.currentDensity} A/dm².`,
+        kind: "success",
+      });
       await loadSensitivity("currentDensity", data.inputs);
       setTimeout(() => {
         resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });

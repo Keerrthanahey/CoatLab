@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Sidebar } from "@/components/sidebar/sidebar";
 import { Topbar } from "@/components/topbar/topbar";
-import { isMockMode } from "@/lib/api/client";
+import { FooterConnectionStatus } from "@/components/ui/connection-status";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -26,9 +26,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-2 px-4 text-[11px] text-slate-500 sm:px-6 lg:px-8">
             <span>CoatLab · Materials Intelligence Platform</span>
             <span>
-              {isMockMode
-                ? "Mock API mode — connect NEXT_PUBLIC_API_BASE_URL for live backend"
-                : "Connected to live backend"}
+              <FooterConnectionStatus />
             </span>
           </div>
         </footer>

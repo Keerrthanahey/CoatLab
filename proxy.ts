@@ -25,6 +25,8 @@ const PROTECTED_PREFIXES = [
   "/model",
   "/materials",
   "/settings",
+  "/profile",
+  "/notifications",
   "/ml",
 ];
 

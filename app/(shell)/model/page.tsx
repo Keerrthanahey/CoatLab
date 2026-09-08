@@ -4,95 +4,137 @@ import {
   ScatterChart as ScatterIcon,
   BarChart3,
   Activity,
-  TrendingUp,
-  CheckCircle2,
-  Circle,
   Database,
   ListChecks,
+  CheckCircle2,
+  Circle,
+  Atom,
+  Layers,
 } from "lucide-react";
 import { api } from "@/lib/api/client";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Badge, DataStatusTag } from "@/components/ui/badge";
-import { StateBanner } from "@/components/ui/empty-state";
+import { StateBanner, EmptyState } from "@/components/ui/empty-state";
 import { PlaceholderChart } from "@/components/charts/placeholder-chart";
+import type { MLModelInfo } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Model Performance" };
 
 const metricDefs = [
-  { key: "r2", label: "R²", note: "Coefficient of determination — share of variance explained." },
-  { key: "mae", label: "MAE", note: "Mean absolute error on held-out test predictions." },
-  { key: "rmse", label: "RMSE", note: "Root mean squared error — penalizes large deviations." },
-  { key: "mape", label: "MAPE", note: "Mean absolute percentage error, scale-independent." },
-] as const;
+  { key: "r2" as const, label: "R²", note: "Share of variance explained by the model." },
+  { key: "mae" as const, label: "MAE", note: "Mean absolute error on held-out predictions." },
+  { key: "rmse" as const, label: "RMSE", note: "Root mean squared error." },
+  { key: "mape" as const, label: "MAPE", note: "Mean absolute percentage error." },
+];
+
+function formatTrainedAt(iso: string | null): string {
+  if (!iso) return "—";
+  try {
+    return new Date(iso).toLocaleString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return iso;
+  }
+}
 
 export default async function ModelPage() {
-  const status = await api.model.status();
+  const info: MLModelInfo = await api.ml.modelInfo();
+  const targets = Object.entries(info.metrics);
+  const trained = info.trained && targets.length > 0;
 
-  const readiness = [
-    { label: "Dataset prepared", done: false, detail: "0 records · awaiting literature extraction" },
-    { label: "Features defined", done: true, detail: `${status.features.length} process parameters` },
-    { label: "Targets defined", done: true, detail: `${status.targets.length} coating properties` },
-    { label: "Evaluation protocol", done: true, detail: "80/20 hold-out split, per-target metrics" },
-    { label: "Model trained & saved", done: false, detail: "training job pending" },
-  ];
+  const targetLabels: Record<string, string> = {
+    corrosion_resistance: "Corrosion Resistance",
+    corrosion_rate: "Corrosion Rate",
+    coating_thickness: "Coating Thickness",
+    porosity: "Porosity",
+    pore_size: "Pore Size",
+    wear_resistance: "Wear Resistance",
+  };
+
+  const modelFamilies = new Set(
+    targets.map(([, m]) => m.selected_model).filter(Boolean),
+  );
 
   return (
     <div className="space-y-6">
       <SectionHeader
         eyebrow="ML training & evaluation"
         title="Model Performance"
-        description="Training status and evaluation metrics for the coating-property regressor. Metrics are never fabricated — they appear only after real training."
-        demoLabel="Not trained"
+        description="XGBoost coating-property regressors trained on the synthetic research dataset with a held-out evaluation split. Metrics are model performance on demo data — never presented as experimental results."
+        demoLabel="Demo"
       />
 
       <StateBanner
         tone="amber"
         icon={<BrainCircuit className="h-4 w-4" />}
-        title="ML Model Status — Not Trained"
-        description="Metrics will appear after the research dataset is prepared and the model is trained. Until then, all performance surfaces remain empty."
+        title={trained ? "Model trained — synthetic demo data" : "Model not trained"}
+        description={
+          trained
+            ? "The pipeline compares XGBoost (primary), GradientBoosting and RandomForest per target and keeps the best R² model. Values come from the 80/20 hold-out split of the 500-row synthetic dataset."
+            : "Run the training pipeline in the backend (python -m app.ml.train) to produce metrics."
+        }
       />
 
       <div className="grid gap-4 lg:grid-cols-3">
-        {/* Status */}
+        {/* Registry */}
         <Card>
           <CardHeader
             title="Model registry"
-            subtitle="Registered target model for coating property regression."
-            icon={<BrainCircuit className="h-4 w-4" />}
+            subtitle="Coating-property regressors from the XGBoost pipeline."
+            icon={<Database className="h-4 w-4" />}
           />
           <div className="mt-4 rounded-lg border border-white/[0.05] bg-white/[0.03] px-4 py-3">
             <p className="text-[10px] font-medium uppercase tracking-wide text-slate-400">Status</p>
             <div className="mt-1 flex items-center gap-2.5">
               <span className="font-mono text-lg font-semibold text-white">
-                Not Trained
+                {trained ? "Trained" : "Not Trained"}
               </span>
-              <Badge tone="amber" dot>
-                Awaiting training
+              <Badge tone={trained ? "teal" : "amber"} dot>
+                {trained ? "XGBoost pipeline" : "Awaiting training"}
               </Badge>
             </div>
           </div>
           <div className="mt-4 space-y-2.5 text-xs">
             <div className="flex items-center justify-between">
-              <span className="text-slate-400">Model ID</span>
-              <code className="font-mono text-slate-200">{status.modelId}</code>
+              <span className="text-slate-400">Primary family</span>
+              <span className="font-mono text-slate-200">XGBoost</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-slate-400">Selected models</span>
+              <span className="max-w-[55%] truncate font-mono text-slate-200">
+                {modelFamilies.size > 0 ? [...modelFamilies].join(" · ") : "—"}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-slate-400">Dataset rows</span>
-              <span className="font-mono tabular-nums text-slate-200">{status.datasetRows}</span>
+              <span className="font-mono tabular-nums text-slate-200">{info.datasetRows}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-slate-400">Test split</span>
+              <span className="font-mono tabular-nums text-slate-200">
+                {info.testRows ? `${info.testRows} rows` : "—"}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-slate-400">Last trained</span>
-              <span className="font-mono text-slate-400">—</span>
+              <span className="max-w-[55%] truncate font-mono text-slate-300">
+                {formatTrainedAt(info.trainedAt)}
+              </span>
             </div>
           </div>
         </Card>
 
-        {/* Feature / target schema */}
+        {/* Model schema */}
         <Card className="lg:col-span-2">
           <CardHeader
             title="Model schema"
-            subtitle="Inputs and outputs the trained model will consume and emit."
+            subtitle="Inputs and outputs consumed and emitted by the trained pipeline."
             icon={<ListChecks className="h-4 w-4" />}
           />
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -100,16 +142,34 @@ export default async function ModelPage() {
               <p className="mb-2 flex items-center gap-2 font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-400">
                 Features
                 <span className="rounded bg-blue-500/10 px-1.5 py-0.5 font-mono text-[10px] text-blue-400">
-                  {status.features.length}
+                  {info.featureCount}
                 </span>
               </p>
-              <div className="flex flex-wrap gap-1.5">
-                {status.features.map((f) => (
+              <p className="flex items-center gap-2 text-[11px] text-slate-400">
+                <Atom className="h-3.5 w-3.5 text-slate-500" />
+                Substrates
+              </p>
+              <div className="mt-1 flex flex-wrap gap-1.5">
+                {info.supportedSubstrates.map((s) => (
                   <code
-                    key={f}
+                    key={s}
                     className="rounded border border-white/[0.07] bg-white/[0.03] px-1.5 py-0.5 font-mono text-[10px] text-slate-400"
                   >
-                    {f}
+                    {s}
+                  </code>
+                ))}
+              </div>
+              <p className="mt-3 flex items-center gap-2 text-[11px] text-slate-400">
+                <Layers className="h-3.5 w-3.5 text-slate-500" />
+                Coatings
+              </p>
+              <div className="mt-1 flex flex-wrap gap-1.5">
+                {info.supportedCoatings.map((c) => (
+                  <code
+                    key={c}
+                    className="rounded border border-white/[0.07] bg-white/[0.03] px-1.5 py-0.5 font-mono text-[10px] text-slate-400"
+                  >
+                    {c}
                   </code>
                 ))}
               </div>
@@ -118,54 +178,99 @@ export default async function ModelPage() {
               <p className="mb-2 flex items-center gap-2 font-mono text-[10px] font-semibold uppercase tracking-widest text-slate-400">
                 Targets
                 <span className="rounded bg-teal-500/10 px-1.5 py-0.5 font-mono text-[10px] text-teal-400">
-                  {status.targets.length}
+                  {info.targetCount}
                 </span>
               </p>
               <div className="flex flex-wrap gap-1.5">
-                {status.targets.map((t) => (
+                {targets.map(([t]) => (
                   <code
                     key={t}
                     className="rounded border border-teal-500/25 bg-teal-500/10 px-1.5 py-0.5 font-mono text-[10px] text-teal-300"
                   >
-                    {t}
+                    {targetLabels[t] ?? t}
                   </code>
                 ))}
+              </div>
+              <div className="mt-4 rounded-lg border border-white/[0.05] bg-white/[0.03] px-3 py-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-medium text-slate-400">Data status</span>
+                  <DataStatusTag label={info.dataStatus || "Demo"} tone="amber" />
+                </div>
+                <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
+                  Metrics computed on the synthetic dataset — replace with experimental data before
+                  drawing scientific conclusions.
+                </p>
               </div>
             </div>
           </div>
         </Card>
       </div>
 
-      {/* Metrics */}
+      {/* Per-target metrics */}
       <section>
-        <div className="mb-3">
-          <h3 className="text-sm font-semibold text-white">Evaluation metrics</h3>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-white">Per-target evaluation metrics</h3>
+          <Badge tone="neutral">Held-out test split</Badge>
         </div>
-        <div className="grid grid-cols-2 gap-3.5 lg:grid-cols-4">
-          {metricDefs.map((m) => (
-            <Card key={m.key}>
-              <div className="flex items-center justify-between">
-                <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                  {m.label}
-                </span>
-                <DataStatusTag label="Pending" />
-              </div>
-              <p className="mt-2 font-mono text-3xl font-semibold text-slate-300">—</p>
-              <p className="mt-1.5 text-[11px] leading-relaxed text-slate-400">{m.note}</p>
-            </Card>
-          ))}
-        </div>
+        {!trained ? (
+          <EmptyState
+            icon={<BrainCircuit className="h-5 w-5" />}
+            title="No metrics available"
+            description="Run python -m app.ml.train in the backend to produce evaluation metrics."
+          />
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {targets.map(([target, metric]) => (
+              <Card key={target}>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="truncate text-[13px] font-semibold text-white">
+                    {targetLabels[target] ?? target}
+                  </p>
+                  <Badge tone={metric.selected_model === "XGBRegressor" ? "teal" : "neutral"}>
+                    {metric.selected_model || "—"}
+                  </Badge>
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  {metricDefs.map((def) => {
+                    const value = metric[def.key];
+                    return (
+                      <div key={def.key}>
+                        <p className="font-mono text-[10px] uppercase tracking-wider text-slate-400">
+                          {def.label}
+                        </p>
+                        <p className="mt-0.5 font-mono text-lg font-semibold tabular-nums text-slate-100">
+                          {typeof value === "number" && Number.isFinite(value)
+                            ? value.toFixed(4)
+                            : "—"}
+                        </p>
+                        <p className="mt-0.5 text-[10px] leading-snug text-slate-500">
+                          {def.note}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Readiness */}
       <Card>
         <CardHeader
           title="Training readiness"
-          subtitle="Prerequisites tracked before a training run can be scheduled."
+          subtitle="Prerequisites for the XGBoost training run and current state of each."
           icon={<Database className="h-4 w-4" />}
         />
         <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-          {readiness.map((r) => (
+          {[
+            { label: "Dataset prepared", done: true, detail: `${info.datasetRows} rows · synthetic` },
+            { label: "Features defined", done: true, detail: `${info.featureCount} process parameters` },
+            { label: "Targets defined", done: true, detail: `${info.targetCount} coating properties` },
+            { label: "Evaluation protocol", done: true, detail: "80/20 hold-out split, per-target metrics" },
+            { label: "Model trained & saved", done: trained, detail: trained ? "pipeline persisted" : "training job pending" },
+          ].map((r) => (
             <div
               key={r.label}
               className="rounded-lg border border-white/[0.05] bg-white/[0.03] px-3 py-3"
@@ -184,27 +289,22 @@ export default async function ModelPage() {
         </div>
       </Card>
 
-      {/* Empty chart containers */}
+      {/* Diagnostics placeholders */}
       <section className="grid gap-4 lg:grid-cols-2">
         <PlaceholderChart
           title="Actual vs Predicted"
-          subtitle="Scatter of observed vs model output for each target."
+          subtitle="Scatter of observed vs model output for each target (demo pipeline)."
           icon={<ScatterIcon className="h-5 w-5" />}
         />
         <PlaceholderChart
           title="Feature Importance"
-          subtitle="Relative contribution of each process parameter."
+          subtitle="Relative contribution of each process parameter (model contribution, not causality)."
           icon={<BarChart3 className="h-5 w-5" />}
         />
         <PlaceholderChart
           title="Residual Distribution"
-          subtitle="Error histogram per target property."
+          subtitle="Spread of prediction residuals per target."
           icon={<Activity className="h-5 w-5" />}
-        />
-        <PlaceholderChart
-          title="Training Performance"
-          subtitle="Loss / metric curves across epochs."
-          icon={<TrendingUp className="h-5 w-5" />}
         />
       </section>
     </div>

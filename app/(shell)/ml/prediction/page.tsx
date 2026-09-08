@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Field, NumberInput, SelectInput } from "@/components/ui/form";
 import { EmptyState, StateBanner } from "@/components/ui/empty-state";
 import { PerformanceRadar } from "@/components/charts/radar-chart";
+import { notify } from "@/lib/notifications/store";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 
@@ -255,6 +256,11 @@ export default function MLPredictionPage() {
       const predictions = normalizePredictions(json);
       if (!predictions) throw new Error("Unexpected response shape from prediction service");
       setResult(predictions);
+      notify({
+        title: "ML prediction completed",
+        message: `Prediction ran for ${values.substrate_material} with a ${values.coating_material} coating.`,
+        kind: "success",
+      });
       setTimeout(() => {
         resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 60);

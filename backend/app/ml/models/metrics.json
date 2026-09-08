@@ -1,7 +1,7 @@
 {
   "demo": true,
-  "note": "Metrics computed on SYNTHETIC data; not real experimental performance. Both RandomForest and GradientBoosting were compared; the best model per target (by R\u00b2) is reported in 'selected_model'.",
-  "trained_at": "2026-09-06T12:58:21.737938+00:00",
+  "note": "Metrics computed on SYNTHETIC data; not real experimental performance. XGBoost (primary), RandomForest and GradientBoosting were compared; the best model per target (by R\u00b2) is reported in 'selected_model'.",
+  "trained_at": "2026-09-08T10:57:29.561337+00:00",
   "dataset_rows": 500,
   "train_rows": 400,
   "test_rows": 100,
@@ -31,46 +31,46 @@
   ],
   "metrics": {
     "corrosion_resistance": {
-      "r2": 0.6909,
-      "mae": 5.727073,
-      "rmse": 7.259625,
-      "mape": 0.517867,
+      "r2": 0.690884,
+      "mae": 5.733157,
+      "rmse": 7.259819,
+      "mape": 0.517927,
       "selected_model": "GradientBoostingRegressor"
     },
     "corrosion_rate": {
-      "r2": 0.876543,
-      "mae": 0.174327,
-      "rmse": 0.229781,
-      "mape": 0.392015,
-      "selected_model": "GradientBoostingRegressor"
+      "r2": 0.881991,
+      "mae": 0.177194,
+      "rmse": 0.224653,
+      "mape": 0.405896,
+      "selected_model": "XGBRegressor"
     },
     "coating_thickness": {
-      "r2": 0.919521,
-      "mae": 4.25876,
-      "rmse": 5.701761,
-      "mape": 0.102059,
-      "selected_model": "GradientBoostingRegressor"
+      "r2": 0.926894,
+      "mae": 4.194068,
+      "rmse": 5.434299,
+      "mape": 0.100278,
+      "selected_model": "XGBRegressor"
     },
     "porosity": {
-      "r2": 0.823242,
-      "mae": 1.883809,
-      "rmse": 2.394043,
-      "mape": 0.376106,
+      "r2": 0.823243,
+      "mae": 1.883098,
+      "rmse": 2.394038,
+      "mape": 0.375991,
       "selected_model": "GradientBoostingRegressor"
     },
     "pore_size": {
-      "r2": 0.883759,
-      "mae": 0.994721,
-      "rmse": 1.47905,
-      "mape": 1.041919,
+      "r2": 0.88358,
+      "mae": 0.995875,
+      "rmse": 1.480189,
+      "mape": 1.040312,
       "selected_model": "RandomForestRegressor"
     },
     "wear_resistance": {
-      "r2": 0.841316,
-      "mae": 16.324908,
-      "rmse": 20.136026,
-      "mape": 0.143074,
-      "selected_model": "GradientBoostingRegressor"
+      "r2": 0.842973,
+      "mae": 16.298659,
+      "rmse": 20.030626,
+      "mape": 0.143996,
+      "selected_model": "XGBRegressor"
     }
   }
 }

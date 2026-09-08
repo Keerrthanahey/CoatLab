@@ -1,4 +1,42 @@
 import type { AgentChatResponse, ApiClient, CoatingInput, CoatingPrediction, OptimizationRequest, OptimizationResult } from "./contract";
+import type { MLModelInfo } from "@/lib/types";
+
+/**
+ * Normalize the snake_case payload of GET /api/ml/model-info into the typed
+ * MLModelInfo contract used by the frontend.
+ */
+function mapModelInfo(raw: unknown): MLModelInfo {
+  const obj = (raw ?? {}) as Record<string, unknown>;
+  const metricsRaw =
+    obj.metrics && typeof obj.metrics === "object" ? (obj.metrics as Record<string, unknown>) : {};
+  const metrics: MLModelInfo["metrics"] = {};
+  for (const [target, value] of Object.entries(metricsRaw)) {
+    const m = (value ?? {}) as Record<string, unknown>;
+    metrics[target] = {
+      r2: Number(m.r2 ?? null),
+      mae: Number(m.mae ?? null),
+      rmse: Number(m.rmse ?? null),
+      mape: Number(m.mape ?? null),
+      selected_model: String(m.selected_model ?? ""),
+    };
+  }
+  return {
+    trained: Boolean(obj.trained),
+    trainedAt: (obj.trained_at as string | null) ?? null,
+    datasetRows: Number(obj.dataset_rows ?? 0),
+    featureCount: Number(obj.feature_count ?? 0),
+    targetCount: Number(obj.target_count ?? 0),
+    supportedSubstrates: Array.isArray(obj.supported_substrates)
+      ? obj.supported_substrates.map(String)
+      : [],
+    supportedCoatings: Array.isArray(obj.supported_coatings)
+      ? obj.supported_coatings.map(String)
+      : [],
+    metrics,
+    dataStatus: String(obj.data_status ?? "synthetic"),
+    demo: Boolean(obj.demo),
+  };
+}
 
 /**
  * Live HTTP client for the FastAPI backend.
@@ -105,8 +143,8 @@ function createLiveClient(baseUrl: string): ApiClient {
         http(`/api/ml/predict`, { method: "POST", body: JSON.stringify(input) }),
       optimize: (request: OptimizationRequest): Promise<OptimizationResult> =>
         http(`/api/ml/optimize`, { method: "POST", body: JSON.stringify(request) }),
-      modelInfo: (): Promise<Record<string, unknown>> =>
-        http(`/api/ml/model-info`),
+      modelInfo: (): Promise<MLModelInfo> =>
+        http(`/api/ml/model-info`).then((raw) => mapModelInfo(raw)),
     },
     agent: {
       chat: (message: string): Promise<AgentChatResponse> =>

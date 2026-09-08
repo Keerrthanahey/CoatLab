@@ -9,9 +9,19 @@ import type { PredictionInput } from "@/lib/types";
 
 export type FormValues = Record<string, string>;
 
+const MATERIAL_OPTIONS = [
+  { value: "mp-153", label: "Magnesium (Mg) — mp-153" },
+  { value: "mp-al", label: "Aluminum (Al) — mp-al" },
+  { value: "mp-zr", label: "Zirconium (Zr) — mp-zr" },
+  { value: "mp-ta", label: "Tantalum (Ta) — mp-ta" },
+];
+
 export function buildInput(values: FormValues): PredictionInput {
+  const materialId = MATERIAL_OPTIONS.some((o) => o.value === values.material)
+    ? values.material
+    : "mp-153";
   return {
-    materialId: "mp-153",
+    materialId,
     electrolyte: values.electrolyte ?? "",
     concentration: parseFloat(values.concentration) || 0,
     currentDensity: parseFloat(values.currentDensity) || 0,
@@ -69,9 +79,16 @@ export function ParameterForm({
       />
 
       <div className="mt-5 space-y-4">
-        <Field label="Material" hint="Only Mg is registered in the demo index.">
-          <SelectInput value="mp-153">
-            <option value="mp-153">Magnesium (Mg) — mp-153</option>
+        <Field label="Substrate material" hint="Demo index includes Mg, Al, Zr and Ta.">
+          <SelectInput
+            value={values.material ?? MATERIAL_OPTIONS[0].value}
+            onChange={(e) => onChange("material", e.target.value)}
+          >
+            {MATERIAL_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
           </SelectInput>
         </Field>
 

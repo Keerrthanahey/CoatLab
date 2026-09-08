@@ -16,6 +16,8 @@ export interface AuthUser {
   fullName: string;
   email: string;
   domain: string | null;
+  provider: string;
+  avatarUrl: string | null;
 }
 
 interface AuthContextValue {
@@ -30,6 +32,7 @@ interface AuthContextValue {
     confirmPassword: string;
     domain?: string;
   }) => Promise<AuthUser>;
+  updateProfile: (data: { fullName: string; domain?: string }) => Promise<AuthUser>;
   logout: () => Promise<void>;
 }
 
@@ -108,6 +111,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const updateProfile = useCallback(async (data: { fullName: string; domain?: string }) => {
+    const res = await fetch("/api/auth/profile", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    const result = (await res.json()) as { user?: AuthUser; error?: string };
+    if (!res.ok || !result.user) {
+      throw new Error(result.error ?? "Unable to update profile.");
+    }
+    setUser(result.user);
+    return result.user;
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });
@@ -119,8 +136,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [router]);
 
   const value = useMemo(
-    () => ({ user, loading, refresh, login, signup, logout }),
-    [user, loading, refresh, login, signup, logout],
+    () => ({ user, loading, refresh, login, signup, updateProfile, logout }),
+    [user, loading, refresh, login, signup, updateProfile, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

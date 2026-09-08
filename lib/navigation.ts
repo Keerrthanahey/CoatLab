@@ -9,6 +9,8 @@ import {
   SlidersHorizontal,
   BarChart3,
   Settings,
+  UserRound,
+  Bell,
   type LucideIcon,
 } from "lucide-react";
 
@@ -108,6 +110,23 @@ export const navSections: NavSection[] = [
         label: "Figure Extract",
         description: "Extract data from figures",
         icon: BarChart3,
+      },
+    ],
+  },
+  {
+    label: "Account",
+    items: [
+      {
+        href: "/profile",
+        label: "Profile",
+        description: "Identity & preferences",
+        icon: UserRound,
+      },
+      {
+        href: "/notifications",
+        label: "Notifications",
+        description: "Workspace updates",
+        icon: Bell,
       },
     ],
   },
