@@ -19,8 +19,8 @@ Next.js, React, Tailwind CSS, and Framer Motion.
   into view.
 - **3D tilt cards** — quick-action cards with perspective tilt and a shine
   highlight.
-- **Schema-driven prediction form** — append to `parameterDefinitions` in
-  `lib/mock-data/prediction.ts` to add process parameters.
+- **Schema-driven prediction form** — append to
+  `frontend/lib/mock-data/prediction.ts` to add process parameters.
 - **Dark navy theme** — full light→dark conversion of pages, feature
   components, and UI primitives.
 
@@ -34,69 +34,76 @@ Next.js, React, Tailwind CSS, and Framer Motion.
 - [lucide-react](https://lucide.dev) — icons
 - [TypeScript](https://www.typescriptlang.org)
 
+## Repository Structure
+
+```text
+CoatLab/
+├── frontend/             # Next.js application
+│   ├── app/              # App Router pages and layouts
+│   ├── components/       # UI and feature components
+│   ├── lib/              # API client, types, and mock data
+│   ├── public/           # Static assets
+│   ├── package.json
+│   └── .env.example
+├── backend/              # FastAPI application, ML models, and data
+├── AGENTS.md
+└── README.md
+```
+
 ## Getting Started
 
+Run the frontend from its own directory:
+
 ```bash
-# install dependencies
+cd frontend
 npm install
-
-# start the dev server (default port 3000)
 npm run dev
+```
 
-# run on a specific port
+Open [http://localhost:3333](http://localhost:3333) when using the configured
+port, or the URL printed by Next.js.
+
+To run on port 3333 explicitly:
+
+```bash
 npm run dev -- -p 3333
 ```
 
-Open [http://localhost:33333](http://localhost:3333).
+Copy `frontend/.env.example` to `frontend/.env.local` and set the required
+environment variables. Never commit real environment files or credentials.
 
-## Scripts
+## Frontend Scripts
 
-| Command           | Description                          |
-| ----------------- | ------------------------------------ |
-| `npm run dev`     | Start the development server         |
-| `npm run build`   | Production build (runs type checking)|
-| `npm run start`   | Serve the production build           |
-| `npm run lint`    | Run ESLint                           |
+Run these commands from `frontend/`:
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the development server |
+| `npm run build` | Create a production build |
+| `npm run start` | Serve the production build |
+| `npm run lint` | Run ESLint |
 
 ## Architecture Notes
 
-- The UI only talks to `lib/api/client.ts` (the `api` facade). It currently
-  resolves to the mock client in `lib/api/mock.ts`. Set
-  `NEXT_PUBLIC_API_BASE_URL` to switch to the real FastAPI client
-  (`lib/api/live.ts`).
-- Strong response types live in `lib/types`; the endpoint map lives in
-  `lib/api/client.ts` (`API_ENDPOINTS`).
-- The prediction form is schema-driven via `parameterDefinitions` in
-  `lib/mock-data/prediction.ts`.
+- The UI only talks to `frontend/lib/api/client.ts` (the `api` facade). It
+  currently resolves to the mock client in `frontend/lib/api/mock.ts`. Set
+  `NEXT_PUBLIC_API_BASE_URL` to switch to the real FastAPI client in
+  `frontend/lib/api/live.ts`.
+- Strong response types live in `frontend/lib/types`; the endpoint map lives
+  in `frontend/lib/api/client.ts` (`API_ENDPOINTS`).
+- The prediction form is schema-driven via
+  `frontend/lib/mock-data/prediction.ts`.
 - All mock outputs are explicitly labelled (Demo / Mock / Awaiting…) and must
   never be presented as scientific results.
 
-## Project Structure
-
-```
-app/                  # App Router pages and layout
-├── (shell)/          # Shell layout + dashboard, dataset, literature,
-│                     # materials, microstructure, model, prediction, settings
-└── globals.css       # Dark theme tokens, fonts, keyframes, utilities
-components/
-├── interactive/      # ParticleCanvas, Crystal3D, StatCounter, TiltCard
-├── shell/            # AppShell
-├── sidebar/          # Sidebar navigation
-├── topbar/           # Glassmorphism navbar
-├── cards/            # KPI cards
-├── charts/           # Recharts wrappers + placeholders
-├── material/         # Crystal viewer, microstructure upload zone
-├── literature/       # Literature index + research assistant
-├── prediction/       # Prediction form + results
-└── ui/               # Badge, Button, Card, Tabs, EmptyState, etc.
-lib/                  # API client, types, mock data, navigation
-```
-
 ## Deployment
 
-The app is deployed via [Vercel](https://vercel.com). Push to the `master`
-branch and Vercel will build the latest commit — or trigger a redeploy from the
-project dashboard.
+The frontend is deployed via [Vercel](https://vercel.com). Set the Vercel
+project's **Root Directory** to `frontend`, then configure the frontend
+environment variables in the Vercel project settings. Push to `master` to
+trigger a deployment, or redeploy from the Vercel dashboard.
+
+Deploy the FastAPI backend separately from the `backend/` directory.
 
 ## License
 

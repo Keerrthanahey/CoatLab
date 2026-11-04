@@ -1,23 +1,27 @@
 # CoatLab — Materials Intelligence Platform
 
-AI-assisted prediction and analysis of coating (Mg) process–property relationships.
+## Frontend commands
 
-## Commands
+Run frontend commands from `frontend/`:
 
-- `npm run dev` — start the development server
-- `npm run build` — production build (runs TypeScript type checking)
+- `npm install` — install frontend dependencies
+- `npm run dev` — start the Next.js development server
+- `npm run build` — create a production build
 - `npm run lint` — run ESLint
 - `npm run start` — serve the production build
 
 ## Architecture notes
 
-- The UI only talks to `lib/api/client.ts` (`api` facade). It currently resolves
-  to the mock client in `lib/api/mock.ts`. Set `NEXT_PUBLIC_API_BASE_URL` to
-  switch to the real FastAPI client (`lib/api/live.ts`).
-- Strong response types live in `lib/types`; endpoint map in
-  `lib/api/client.ts` (`API_ENDPOINTS`).
-- The prediction form is schema-driven: append to `parameterDefinitions` in
-  `lib/mock-data/prediction.ts` to add process parameters.
+- The Next.js application lives in `frontend/`; the FastAPI application lives
+  in `backend/`.
+- The UI only talks to `frontend/lib/api/client.ts` (the `api` facade). It
+  currently resolves to the mock client in
+  `frontend/lib/api/mock.ts`. Set `NEXT_PUBLIC_API_BASE_URL` to switch to
+  the real FastAPI client in `frontend/lib/api/live.ts`.
+- Strong response types live in `frontend/lib/types`; endpoint map in
+  `frontend/lib/api/client.ts`.
+- The prediction form is schema-driven: append to
+  `frontend/lib/mock-data/prediction.ts` to add process parameters.
 - All mock outputs are explicitly labelled (Demo / Mock / Awaiting …) and must
   never be presented as scientific results.
 
@@ -25,8 +29,8 @@ AI-assisted prediction and analysis of coating (Mg) process–property relations
 
 # This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `frontend/node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+This block is written and re-added by `next dev` — verify at `frontend/node_modules/next/dist/server/lib/generate-agent-files.js`. In this monorepo, resolve the Next.js package from the frontend directory.
 
 <!-- END:nextjs-agent-rules -->
