@@ -60,3 +60,9 @@ backend/*.egg-info/
 *.pyo
 # keep backend .env.example tracked
 !backend/.env.example
+
+# Frontend Next.js
+/frontend/node_modules/
+/frontend/.next/
+/frontend/out/
+/frontend/build/
